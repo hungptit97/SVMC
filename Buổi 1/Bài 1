@@ -1,0 +1,123 @@
+
+// tim tong của hàng cọt và 2 đường chéo chính lớn nhất của ma trận 2 chiều
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+#include <iostream>
+
+using namespace std;
+int i,j,kq[4]={};
+int n,a[100][100],result=0,count;
+
+int Sum_row(int n){
+	int temp=0;
+	int s[100]={};
+	for( i=0;i<n;i++){
+		for( j=0;j<n;j++){
+			s[i] += a[i][j];
+		}
+		
+	}
+
+	for(i=0;i<n;i++){
+		temp=s[0];
+		for(j=0;j<n;j++){
+			if(temp<s[j]){
+				temp=s[j];
+			}
+		}
+	}
+	return temp;
+}
+
+int Sum_col(int n){
+	int temp=0;
+	int s[100]={};
+	for( i=0;i<n;i++){
+		for( j=0;j<n;j++){
+			s[i] += a[j][i];
+		}
+		
+	}
+	
+	for(i=0;i<n;i++){
+		temp=s[0];
+		for(j=0;j<n;j++){
+			if(temp<s[j]){
+				temp=s[j];
+			}
+		}
+	}
+	return temp;
+}
+
+int Sum_left(int n){
+	int temp=0;
+	
+	for( i=0;i<n;i++){
+		temp += a[i][i];	
+	}
+
+	return temp;
+}
+int Sum_right(int n){
+	int temp=0;
+	
+	for( i=0;i<n;i++){
+		temp += a[i][n-i-1];	
+		
+	}
+
+	return temp;
+}
+
+
+int main(){
+	ifstream file;
+	file.open("teptin.txt");
+	
+	file >> n;
+	cout<<n<<endl;
+	for(count=0;count<n;count++){
+		for( i=0;i<5;i++){
+			for( j=0;j<5;j++){
+				file >> a[i][j];
+			}
+			
+		}
+		for( i=0;i<5;i++){
+			for( j=0;j<5;j++){
+				cout<<a[i][j]<<"  ";
+			}
+			cout<<endl;
+			
+		}
+		kq[0]=Sum_row(5);
+		
+		
+		kq[1]=Sum_col(5);
+		
+
+		kq[2]=Sum_left(5);
+
+
+		kq[3]=Sum_right(5);
+		
+
+		for(i=0;i<4;i++){
+			result=kq[0];
+			for(j=0;j<4;j++){
+				if(result<kq[j]){
+					result=kq[j];
+				}
+			}
+
+		}
+		cout<<"#"<<count+1<<" ";
+		cout<<result<<endl;
+	}
+
+	file.close();
+	system("pause");
+}
