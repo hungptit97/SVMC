@@ -1,0 +1,51 @@
+// T
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+#include <iostream>
+
+using namespace std;
+
+int n;
+int a[1000],result[]={},count=0,i,j,c=0;
+int ax=0;
+
+int main(){
+	
+
+	ifstream file;
+	file.open("teptin2.txt");
+	file >> n;
+	cout<<n<<endl;
+
+	for(i=0;i<10;i++){
+		file >> a[i];
+	}
+	for(i=0;i<10;i++){
+		cout<<a[i]<<" ";
+	}
+	cout<<endl;
+
+	for(i=0;i<10;i++){
+		for(j=0;j<10;j++){
+			if(a[i]==a[j]){
+				count++;
+			}
+		}
+		if(count >= ax){
+			ax=count;
+			result[c]=a[i];
+			
+			cout<<result[c]<<" "<<ax<<" "<<c<<endl;
+			c++;
+			
+		}
+		count=0;
+	}
+	
+	
+	// for(i=0;i<sizeof(result);i++){
+	// 	cout<<result[i]<< " ";
+	// }
+
+}
