@@ -360,3 +360,5 @@ int main(){
 //						 + Ghép khung hình nền Score, khi nhấn button score
 //						 + Thêm khung hình của imformation khi nhấn vào button imformation
 //						 + Tạo thêm nhiều câu hỏi
+// Tải thêm thư viện console.h và console.cpp từ link: https://github.com/hungptit97/SVMC/tree/master/Game
+// sau đó add file console.h vào thư mục header và file console.cpp vào file source
