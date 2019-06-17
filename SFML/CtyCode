@@ -1,6 +1,9 @@
 #include<SFML\Graphics.hpp>
+#include<SFML\Audio.hpp>
 #include<iostream>
 #include<string>
+#include<stdlib.h>
+#include"console.h"
 
 
 #define UP 119
@@ -22,12 +25,23 @@
 
 using namespace std;
 using namespace sf;
+
 int Mmouse = 0;
 int Person = -1;
 string Max = "6";
-int start=0;
+int Start=0;
+String Name;
+char buffer[10]={};
 
 
+struct CauHoi{
+	String x[100];
+};
+struct TraLoi{
+	String y[100][100];
+};
+
+// hàm này chưa dùng đến
 class Animation
 {
 private:
@@ -62,44 +76,60 @@ public:
 		}
 };
 
-void getClick(RenderWindow *window)
+void getClick(RenderWindow *window,int mode)
 {
 	// nhận dữ liệu từ chuột
+	// có 3 chế độ
 	Mouse mouse;
 	int x = mouse.getPosition(*window).x;
 	int y = mouse.getPosition(*window).y;
-    if(mouse.isButtonPressed(Mouse::Left) && x>=380 && x<=625 && y>=172 && y<=257){
-         Mmouse = PLAY;
-    }
-    if(mouse.isButtonPressed(Mouse::Left) && x>=380 && x<=625 && y>=280 && y<=369){
-          Mmouse = SCORE;
-    }
-    if(mouse.isButtonPressed(Mouse::Left) && x>=375 && x<=622 && y>=395 && y<=480){
-          Mmouse = IMFORMATION;
-    }
-    if(mouse.isButtonPressed(Mouse::Left) && x>=686 && x<=808 && y>=393 && y<=480){
-         Mmouse = BACK;
-    }
+	// chế độ 1 dùng cho màn hinh menu , score và imformation
+	if(mode == 1){
+		if(mouse.isButtonPressed(Mouse::Left) && x>=380 && x<=625 && y>=172 && y<=257){
+			 Mmouse = PLAY;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=380 && x<=625 && y>=280 && y<=369){
+			  Mmouse = SCORE;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=375 && x<=622 && y>=395 && y<=480){
+			  Mmouse = IMFORMATION;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=686 && x<=808 && y>=393 && y<=480){
+			 Mmouse = BACK;
+		}
+	}
 
-    // chon nhan vat
-    if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=165 && y>=18 && y<=156){
-        Person =  NV1;
+    // chế độ 2 dùng cho chọn nhân vật
+	if(mode == 2){
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=165 && y>=18 && y<=156){
+			Person =  NV1;
+		
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=165 && y>=185 && y<=323){
+			Person =  NV2;
+		
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=351 && y>=370 && y<=490){
+			Person =  NV3;
+		
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=18 && y<=156){
+			Person =  NV4;
+		
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=185 && y<=323){
+			Person =  NV5;
+		
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=370 && y<=490){
+			Person =  NV6;
+		}
+		
     }
-    if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=165 && y>=185 && y<=323){
-        Person =  NV2;
-    }
-    if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=351 && y>=370 && y<=490){
-        Person =  NV3;
-    }
-    if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=18 && y<=156){
-        Person =  NV4;
-    }
-    if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=185 && y<=323){
-        Person =  NV5;
-    }
-    if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=370 && y<=490){
-        Person =  NV6;
-    }
+	// chế độ 3 dùng để chọn các đáp án ABCD ( chưa làm)
+	if(mode == 3){}
+
+	// Hiện tọa độ x,y
     if(mouse.isButtonPressed(Mouse::Left) && x>=0 && x<=WIDTH && y>=0 && y<=HEIGHT){
         cout<<x<<"\t"<<y<<endl;
     }
@@ -110,17 +140,31 @@ int main(){
     
    
     RenderWindow window;
-    window.create(VideoMode(WIDTH,HEIGHT),"Game cua Hung");
-    
-  
+	window.create(VideoMode(WIDTH,HEIGHT),"Game cua Hung",Style::Close); // Tạo ra khung cửa sổ window
+    ///////////////////////////////////////////////////////////////////
+	CauHoi cauhoi;
+	TraLoi traloi;
+	//////////////////////////////////////////////////////////////////
+	// Câu hỏi và câu trả lời ( viết tiếp thêm nhiều câu hỏi vào đây)
+	cauhoi.x[1] = "Deo viet duoc tieng viet cac bạn ơi";
+	traloi.y[1][1] = "khong biet";
+	traloi.y[1][2] = "khong tra loi";
+	traloi.y[1][3] = "OK";
+	traloi.y[1][4] = "khong con gi de noi";
+	
+	cauhoi.x[2] = "Do cac ban ai la nguoi ngu nhat the gioi";
+	traloi.y[2][1] = "Toi nghi do la ban";
+	traloi.y[2][2] = "khong tra loi";
+	traloi.y[2][3] = "Maria ozawa";
+	traloi.y[2][4] = "ong CuDA";
+
 /*
 	Texture t;
 	t.loadFromFile("image3.png");
 	Animation boom(&window,t,0,0,163,165,float(0.06),7);*/
 
-	
-
  ////////////////////////////////////////////////////////////
+	// Thiết lập khung avatar (ok)
     Texture face;
     face.loadFromFile("face.png");
     Sprite Face;
@@ -128,6 +172,7 @@ int main(){
     Face.setTextureRect(IntRect(0,0,1280,720));
     Face.setScale(float(0.78),float(0.7));
  ////////////////////////////////////////////////////////////
+	// thiết lập khung menu (ok)
     Texture menu;
     menu.loadFromFile("Begin.png");
     Sprite Menu;
@@ -135,78 +180,183 @@ int main(){
     Menu.setTextureRect(IntRect(0,0,1280,720));
     Menu.setScale(float(0.78),float(0.7));
  ///////////////////////////////////////////////////////////
+	// thiết lập khung khi nhấn vào button Score ( Cần Sửa)
     Texture score;
-    score.loadFromFile("highScore.png");
+    score.loadFromFile("background.png");
     Sprite Score;
     Score.setTexture(score);
     Score.setTextureRect(IntRect(0,0,1280,720));
     Score.setScale(float(0.78),float(0.7));
     ////////////////////////////////////////////////////////
+	Texture play;
+    play.loadFromFile("TronKhiChoiGame.png");
+    Sprite Play;
+    Play.setTexture(play);
+    Play.setTextureRect(IntRect(0,0,1280,720));
+    Play.setScale(float(0.78),float(0.7));
+    ////////////////////////////////////////////////////////
+	// thiết lập Score
     Font font;
     Text textScore;
-
-    font.loadFromFile("fontSocre1.TTF");
+    font.loadFromFile("Font.TTF");
     textScore.setString(Max);
     textScore.setPosition(WIDTH/2,HEIGHT/3);
     textScore.setFont(font);
     textScore.setStyle(Text::Bold);
     textScore.setCharacterSize(60);
-//    textScore.setColor(Color::Green);
+    textScore.setColor(Color::Green);
     /////////////////////////////////////////////////////////
+	Font fontQuestion;
+	fontQuestion.loadFromFile("Font.TTF");
+    Text textQuestion;
+	Text answerA,answerB,answerC,answerD;
+	Text clock;
+	// Thiết lập thời gian 30s đếm ngược ( chưa làm đc)
+	clock.setFont(fontQuestion);
+	clock.setCharacterSize(60);
+	clock.setColor(Color::Cyan);
+	clock.setPosition(846,50);
+	
+	// Thiết lập các đáp án ABCD ( Mặc định)
+	answerA.setFont(fontQuestion);
+	answerA.setCharacterSize(20);
+	answerA.setColor(Color::Cyan);
 
+	answerB.setFont(fontQuestion);
+	answerB.setCharacterSize(20);
+	answerB.setColor(Color::Cyan);
+
+	answerC.setFont(fontQuestion);
+	answerC.setCharacterSize(20);
+	answerC.setColor(Color::Cyan);
+
+	answerD.setFont(fontQuestion);
+	answerD.setCharacterSize(20);
+	answerD.setColor(Color::Cyan);
     
+	// Thiết lập câu hỏi
+    textQuestion.setFont(fontQuestion);
+    textQuestion.setStyle(Text::Bold);
+    textQuestion.setCharacterSize(30);
+	textQuestion.setColor(Color::Cyan);
 
+
+
+    // Câu Lệnh Tạo Nhạc
+	Music music;
+	music.openFromFile("DoTaKhongDoNang.wav");
+    music.play();
+	music.pause();
   
-    /////////////////////////////////////////////////////
+    
+	int temp=1; // temp dùng để lựa chọn chế độ click chuột -> lên hàm getClick để xem tiếp
 
 	while(window.isOpen()){
 
-		window.clear(Color::Black);
 		
-		window.draw(Menu);
-        window.display();
-        
-       /* getClick(&window);
+		Event e;
+		
+		while (window.pollEvent(e))
+		{
+			if (e.type == Event::Closed)
+				window.close();
+		}
+		window.clear(Color::Black);		
+		window.draw(Menu);		// vẽ ra ảnh menu
+        getClick(&window,temp); 
      
-        if(Mmouse == SCORE){   
+        if(Mmouse == SCORE){	// nếu chọn button Score thì in ra hình ảnh Score
                 
             window.draw(Score);
             window.draw(textScore); 
-            start = 0;
+            Start = 0;
         }
         if(Mmouse == BACK){
             Mmouse = 0;
             window.draw(Menu);
-            start = 0;
+            Start = 0;
         }
         if(Mmouse == PLAY){
+			temp=2;
             window.draw(Face); 
-            if(Person == NV1){
-                start = 1;  
-            }
-            if(Person == NV2){
-                start = 1;  
-            }
-            if(Person == NV3){
-                start = 1;  
-            }
-            if(Person == NV4){
-                start = 1;  
-            }
-            if(Person == NV5){
-                start = 1;  
-            }
-            if(Person == NV6){
-                start = 1;  
-            }
-            
+			Sleep(50);
+			Person = 0;
+			getClick(&window,temp);
+			// lựa chọn nhân vật 
+			switch (Person){
+				case NV1:	Name = "Mr.Thang"; Start = 1; break;
+				case NV2:	Name = "Mr.Hung";  Start = 1; break;
+				case NV3:	Name = "Mr.Nhan";  Start = 1; break;
+				case NV4:	Name = "Ms.Tring"; Start = 1; break;
+				case NV5:	Name = "Ms.Anh";   Start = 1; break;
+				case NV6:	Name = "Ms.Quynh"; Start = 1; break;
+			
+			}
+			
         }
-        if(start == 1){
-            
-        }
-        
-		*/
 		
+		 window.display();
+		if(Start == 1){		// lựa chọn xong nhận vật sẽ nhảy vào if và thoát khỏi vòng lặp
+			Start = 0;
+			break;
+		}
 	}
+	
+	int count =0;
+	int ClockTemp = 0;
+
+	while(window.isOpen()){
+
+		Event e;
+		while (window.pollEvent(e))
+		{
+			if (e.type == Event::Closed)
+				window.close();
+		}
+
+		window.draw(Play);	// in ra hình ảnh chơi
+
+		////// Cau hoi 
+		textQuestion.setString(cauhoi.x[1]);
+		textQuestion.setPosition(28,170);
+		window.draw(textQuestion);
+
+		////// Cau tra loi 
+		answerA.setString(traloi.y[1][1]);	// A
+		answerA.setPosition(109,350);
+		window.draw(answerA);
+
+		answerB.setString(traloi.y[1][2]);	// B
+		answerB.setPosition(555,350);
+		window.draw(answerB);
+
+		answerC.setString(traloi.y[1][3]);	// C
+		answerC.setPosition(109,440);
+		window.draw(answerC);
+
+		answerD.setString(traloi.y[1][4]);	// D
+		answerD.setPosition(555,440);
+		window.draw(answerD);
+
+		/*clock.setString(itoa(ClockTemp,buffer,3));
+		window.draw(clock);
+		count++;
+		if(count>1000){ 
+			ClockTemp ++;
+			count=0;
+		}*/
+
+		getClick(&window,3);
+		window.display();
+		
+		
+		
+		}
+		
+
 	return 0;
 }
+// Công việc cần làm là: + Tạo hiệu ứng âm thanh cho từng hành động vd như click vào button
+//						 + Ghép khung hình nền Score, khi nhấn button score
+//						 + Thêm khung hình của imformation khi nhấn vào button imformation
+//						 + Tạo thêm nhiều câu hỏi
