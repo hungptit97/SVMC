@@ -1,0 +1,808 @@
+#include<SFML\Graphics.hpp>
+#include<SFML\Audio.hpp>
+#include<iostream>
+#include<string>
+#include<stdlib.h>
+#include"console.h"
+#include<ctime>
+
+
+#define UP 119
+#define DOWN 115
+#define LEFT 97
+#define RIGHT 100
+#define WIDTH 1000
+#define HEIGHT 500
+#define PLAY 10
+#define SCORE 20
+#define IMFORMATION 30
+#define BACK 40
+#define NV1 1
+#define NV2 2
+#define NV3 3
+#define NV4 4
+#define NV5 5
+#define NV6 6
+#define A 15
+#define B 16
+#define C 17
+#define D 18
+
+using namespace std;
+using namespace sf;
+
+int Mmouse = 0;
+int Person = -1;
+int Max = 0, tempMax =0;
+int Start=0;
+String Name;
+char buffer[10]={};
+int Select =0;
+int help1=0,help2=0;
+
+
+struct CauHoi{
+	String x[100];
+};
+struct TraLoi{
+	String y[100][100];
+};
+
+// hàm này chưa dùng đến
+class Animation
+{
+private:
+	RenderWindow *window;
+	Sprite sprite;
+	float speed;
+	float Frame;
+	vector <IntRect> Frames;
+public:
+	
+	Animation(RenderWindow *window, Texture &t, int x, int y, int width, int height, float speed, int count)
+	{
+		this->window = window;
+		this->Frame = 0;
+		this->speed = speed;
+		for(int i=0;i<count;i++)	this->Frames.push_back(IntRect(x + width*i,y,width,height));
+		this->sprite.setScale(1,1);	// thu nhỏ ảnh
+		this->sprite.setTexture(t);
+		this->sprite.setTextureRect(Frames[0]);
+	}
+		void update()
+		{
+			this->Frame += this->speed;
+			int n = this->Frames.size();
+			if(this->Frame > n)		this->Frame -= n;
+			this->sprite.setTextureRect(this->Frames[int(this->Frame)]);
+		
+		}
+		void draw()
+		{
+			this->window->draw(this->sprite);
+		}
+};
+
+void getClick(RenderWindow *window,int mode);
+
+int randomQuestion(int a, int b){
+	srand(time(NULL)); 
+	int x = a + rand()%(b-a+1);
+	return x;
+}
+
+int randomAnswer(int a, int b, int c,int d, int e, int f){
+	srand(time(NULL)); 
+	int y;
+	y = a + rand()%(b-a+1);
+	while(y == c || y == d || y == e || y == f){
+		y = a + rand()%(b-a+1);
+	}
+	return y;
+}
+
+
+int main(){
+    	int count =0;
+		int ClockTemp = 0;
+		
+		int tempQuestion=0, tempAnswerA,tempAnswerB,tempAnswerC,tempAnswerD;
+   
+    RenderWindow window;
+	window.create(VideoMode(WIDTH,HEIGHT),L"Game của Hùng",Style::Close); // Tạo ra khung cửa sổ window
+    ///////////////////////////////////////////////////////////////////
+	CauHoi cauhoi;
+	TraLoi traloi;
+	CauHoi dapan;
+	//////////////////////////////////////////////////////////////////
+	// Câu hỏi và câu trả lời ( viết tiếp thêm nhiều câu hỏi vào đây)
+
+	cauhoi.x[1] = L"Hiện nay Thành 10 tuổi, 8 năm nữa Thành sẽ gấp đôi tuổi em ruột Thành bây giờ, hỏi bây giờ em Thành bao nhiêu tuổi?";
+	traloi.y[1][1] = "9";
+	traloi.y[1][2] = "10";
+	traloi.y[1][3] = "12";
+	traloi.y[1][4] = "6";
+	/************************************/ //66,667%
+	cauhoi.x[2] = L"Một sản phẩm được hạ giá 40%, hỏi sản phẩm đó phải tăng lên bao nhiêu phần trăm để trở về với giá ban đầu?";
+	traloi.y[2][1] = "66,667%";
+	traloi.y[2][2] = "66%";
+	traloi.y[2][3] = "73,333%";
+	traloi.y[2][4] = "40%";
+	/************************************/	   //a>d
+	cauhoi.x[3] = L"Nếu a = b, b > c và c > d thì mối quan hệ giữa a và d là?";
+	traloi.y[3][1] = "a > d";
+	traloi.y[3][2] = "a = d";
+	traloi.y[3][3] = "a < d";
+	traloi.y[3][4] = L"không đủ dữ liệu";
+	/************************************/		 // c: 49
+	cauhoi.x[4] = L"Số tiếp theo trong dãy số sau đây là số nào: 144, 121, 100, 81, 64, ... ??";
+	traloi.y[4][1] = "49";
+	traloi.y[4][2] = "53";
+	traloi.y[4][3] = "45";
+	traloi.y[4][4] = "57";
+	/************************************/	  //c : 6258
+	cauhoi.x[5] = L"Nếu từ WOLF tương ứng với số 8526, thì từ FLOW tương ứng với số nào sau đây?";
+	traloi.y[5][1] = "6258";
+	traloi.y[5][2] = "5862";
+	traloi.y[5][3] = "2145";
+	traloi.y[5][4] = "6852";
+	/************************************/	  // c: 40  || 90*1/3=60*1/3=40
+	cauhoi.x[6] = L"Thùy có $90, cô chi tiêu hết 1/3 số tiền ở siêu thị và tiếp tục chi 1/3 số tiền còn lại ở nhà hàng. Nếu Thùy không chi thêm khoản nào khác thì cô còn bao nhiêu?";
+	traloi.y[6][1] = "$40";
+	traloi.y[6][2] = "$30";
+	traloi.y[6][3] = "$20";
+	traloi.y[6][4] = "$10";
+	/************************************/	 //b: chau
+	cauhoi.x[7] = L"Anh trai của cháu gái gọi bạn bằng cô là gì của bạn?";
+	traloi.y[7][1] = L"Cháu";
+	traloi.y[7][2] = "Em";
+	traloi.y[7][3] = L"Cô";
+	traloi.y[7][4] = L"Dì";
+	/************************************/	  //b: 40 - x
+	cauhoi.x[8] = L"Nếu 8 năm trước Mario 32 tuổi thì anh ta bao nhiêu tuổi cách đây x năm?";
+	traloi.y[8][1] = "40 - x";
+	traloi.y[8][2] = "40 + x";
+	traloi.y[8][3] = "x - 24";
+	traloi.y[8][4] = "24 - x";
+	/************************************/	   //d: 44%	  1.2*1.2 - 1 *100
+	cauhoi.x[9] = L"Nếu chiều dài và chiều rộng của một khu vườn hình chữ nhật tăng lên 20%, thì diện tích khu vườn sẽ tăng lên bao nhiêu % ?";
+	traloi.y[9][1] = "44%";
+	traloi.y[9][2] = "24%";
+	traloi.y[9][3] = "36%";
+	traloi.y[9][4] = "47%";
+	/************************************/	  //d: khong du
+	cauhoi.x[10] = L"A cao hơn B, C thấp hơn A. Câu nào đúng nhất ";
+	traloi.y[10][1] = L"Không đủ dữ liệu";
+	traloi.y[10][2] = L"C cao hơn B";
+	traloi.y[10][3] = L"C cao bằng b";
+	traloi.y[10][4] = L"Đéo ai biết";
+
+
+/*
+	Texture t;
+	t.loadFromFile("image3.png");
+	Animation boom(&window,t,0,0,163,165,float(0.06),7);*/
+
+ ////////////////////////////////////////////////////////////
+	// Thiết lập khung avatar (ok)
+    Texture face;
+    face.loadFromFile("face.png");
+    Sprite Face;
+    Face.setTexture(face);
+    Face.setTextureRect(IntRect(0,0,1280,720));
+    Face.setScale(float(0.78),float(0.7));
+	////////////////////////////////////////////////////////////
+	// Thiết lập intro
+    Texture intro;
+    intro.loadFromFile("TruocKhiChonNhanVat.png");
+    Sprite Intro;
+    Intro.setTexture(intro);
+    Intro.setTextureRect(IntRect(0,0,1280,720));
+    Intro.setScale(float(0.78),float(0.7));
+    ////////////////////////////////////////////////////////////
+	// thiết lập khung menu (ok)
+    Texture menu;
+    menu.loadFromFile("Begin.png");
+    Sprite Menu;
+    Menu.setTexture(menu);
+    Menu.setTextureRect(IntRect(0,0,1280,720));
+    Menu.setScale(float(0.78),float(0.7));
+    ///////////////////////////////////////////////////////////
+	// thiết lập khung khi nhấn vào button Score ( Cần Sửa)
+    Texture score;
+    score.loadFromFile("highScore.png");
+    Sprite Score;
+    Score.setTexture(score);
+    Score.setTextureRect(IntRect(0,0,1280,720));
+    Score.setScale(float(0.78),float(0.7));
+    ////////////////////////////////////////////////////////
+	Texture play;
+    play.loadFromFile("TronKhiChoiGame.png");
+    Sprite Play;
+    Play.setTexture(play);
+    Play.setTextureRect(IntRect(0,0,1280,720));
+    Play.setScale(float(0.78),float(0.7));
+    ////////////////////////////////////////////////////////
+	Texture imformation;
+    imformation.loadFromFile("imformation.png");
+    Sprite Imformation;
+    Imformation.setTexture(imformation);
+    Imformation.setTextureRect(IntRect(0,0,1280,720));
+    Imformation.setScale(float(0.78),float(0.7));
+	///////////////////////////////////////////////////////
+	// thiết lập Score
+    Font font;
+    Text textScore;
+    font.loadFromFile("Font.TTF");
+	textScore.setString(itoa(Max,buffer,5));
+    textScore.setPosition(WIDTH/2-20,HEIGHT/2.5-10);
+    textScore.setFont(font);
+    textScore.setStyle(Text::Bold);
+    textScore.setCharacterSize(100);
+    textScore.setColor(Color::Green);
+    /////////////////////////////////////////////////////////
+	Font fontQuestion;
+	fontQuestion.loadFromFile("Font.TTF");
+    Text textQuestion;
+	Text answerA,answerB,answerC,answerD;
+	Text clock;
+	Text win;
+	// Thiết lập thời gian 30s đếm ngược ( chưa làm đc)
+	clock.setFont(fontQuestion);
+	clock.setCharacterSize(60);
+	clock.setColor(Color::Cyan);
+	clock.setPosition(846,50);
+
+	win.setFont(fontQuestion);
+	win.setCharacterSize(100);
+	win.setColor(Color::Cyan);
+	
+	
+	// Thiết lập các đáp án ABCD ( Mặc định)
+	answerA.setFont(fontQuestion);
+	answerA.setCharacterSize(20);
+	answerA.setColor(Color::Cyan);
+
+	answerB.setFont(fontQuestion);
+	answerB.setCharacterSize(20);
+	answerB.setColor(Color::Cyan);
+	
+
+	answerC.setFont(fontQuestion);
+	answerC.setCharacterSize(20);
+	answerC.setColor(Color::Cyan);
+
+	answerD.setFont(fontQuestion);
+	answerD.setCharacterSize(20);
+	answerD.setColor(Color::Cyan);
+    
+	// Thiết lập câu hỏi
+    textQuestion.setFont(fontQuestion);
+    textQuestion.setStyle(Text::Bold);
+    textQuestion.setCharacterSize(30);
+	textQuestion.setColor(Color::Cyan);
+
+
+
+    // Câu Lệnh Tạo Nhạc nền
+	Music NhacDao;
+	NhacDao.openFromFile("xoso.wav");
+	NhacDao.setVolume(10);
+    NhacDao.play();
+	NhacDao.setLoop(true);
+	
+	Music NhacChoi;
+	NhacChoi.openFromFile("nhacNenKhiChoiGame.wav");
+	NhacChoi.setVolume(10);
+	NhacChoi.setLoop(true);
+
+	// Câu Lệnh Tạo Hiệu ứng âm thanh
+	SoundBuffer click,corect,incorect,soundWin,laugh;
+	click.loadFromFile("ClickButton_ChonNutBatKi.wav");
+	corect.loadFromFile("Correct_ChonDungDapAn.wav");
+	incorect.loadFromFile("False_ChonSaiDapAn.wav");
+	soundWin.loadFromFile("winner.wav");
+    laugh.loadFromFile("cuoiKhiThua.wav");
+	Sound Click(click);
+	Sound Corect(corect);
+	Sound Incorect(incorect);
+	Sound SoundWin(soundWin);
+    Sound Laugh(laugh);
+	
+
+	int mode=1; // temp dùng để lựa chọn chế độ click chuột -> lên hàm getClick để xem tiếp
+
+	while(window.isOpen()){
+		Event e;
+		while (window.pollEvent(e))
+		{
+			if (e.type == Event::Closed)
+				window.close();
+		}
+		window.clear(Color::Black);		
+		window.draw(Menu);		// vẽ ra ảnh menu
+        getClick(&window,mode); 
+        if(Mmouse == SCORE){	// nếu chọn button Score thì in ra hình ảnh Score
+			Click.play();
+			textScore.setString(itoa(Max,buffer,5));  
+            window.draw(Score);
+            window.draw(textScore); 
+			window.display();
+			while(Mmouse == SCORE){
+				Event e;
+				while (window.pollEvent(e)){
+					if (e.type == Event::Closed)
+						window.close();
+				}
+				getClick(&window,4);
+			}
+            Start = 0;
+        }
+		if(Mmouse == IMFORMATION){	// nếu chọn button Score thì in ra hình ảnh Score
+			Click.play();
+			window.draw(Imformation);
+			window.display();
+			while(Mmouse == IMFORMATION){
+				Event e;
+				while (window.pollEvent(e)){
+					if (e.type == Event::Closed)
+						window.close();
+				}
+				getClick(&window,4);
+			}
+            Start = 0;
+        }
+        if(Mmouse == BACK){
+			Click.play();
+            Mmouse = 0;
+            window.draw(Menu);
+            Start = 0;
+        }
+        if(Mmouse == PLAY){
+			Click.play();
+			window.draw(Intro);
+			window.display();
+			Sleep(3000);
+            window.draw(Face); 
+			window.display();
+			Sleep(200);
+			Person = 0;
+			while(Mmouse == PLAY){
+				Event e;
+				while (window.pollEvent(e)){
+					if (e.type == Event::Closed)
+						window.close();
+				}
+				getClick(&window,2);
+				// lựa chọn nhân vật 
+				switch (Person){
+					case NV1:	Name = "Mr.Thang"; Start = 1; break;
+					case NV2:	Name = "Mr.Hung";  Start = 1; break;
+					case NV3:	Name = "Mr.Nhan";  Start = 1; break;
+					case NV4:	Name = "Ms.Tring"; Start = 1; break;
+					case NV5:	Name = "Ms.Anh";   Start = 1; break;
+					case NV6:	Name = "Ms.Quynh"; Start = 1; break;		
+				}
+			}
+			Sleep(1000);
+        }	
+		window.display();
+		if(Start == 1){		// lựa chọn xong nhận vật sẽ nhảy vào if và thoát khỏi vòng lặp
+			Start = 0;
+			while(window.isOpen()){
+				NhacDao.pause();
+				NhacChoi.play();
+				Event e;
+				while (window.pollEvent(e))
+				{
+					if (e.type == Event::Closed)
+						window.close();
+				}
+
+				window.draw(Play);	// in ra hình ảnh chơi
+
+				////// Cau hoi 
+				tempQuestion = randomQuestion(1,10);
+				cout<<tempQuestion<<endl;
+
+				
+                     String dong1="";
+                    String dong2="";
+                    //String dong3 = "";
+                    if(cauhoi.x[tempQuestion].getSize()>55 ){
+                    int mark = 55;
+                    int mark2 = mark + 55;
+                    int k = 0;
+                    while(k < mark){
+                        
+                     dong1 += cauhoi.x[tempQuestion][k];
+                     if(cauhoi.x[tempQuestion][mark-1] != ' ') {
+                         if(mark < cauhoi.x[tempQuestion].getSize())
+                        mark++;
+                     }
+                       k++;
+                    }
+                    textQuestion.setString(dong1);
+                    textQuestion.setPosition(50,180);
+                    window.draw(textQuestion);
+                     for(int i=mark;i<cauhoi.x[tempQuestion].getSize();i++){
+                        dong2 += cauhoi.x[tempQuestion][i];
+                             }  
+                    textQuestion.setString(dong2);
+                    textQuestion.setPosition(50,220);
+                    window.draw(textQuestion);
+                    }else {
+                    textQuestion.setString(cauhoi.x[tempQuestion]);
+                    textQuestion.setPosition(50,170);
+                    window.draw(textQuestion);
+                }
+             /*   if(cauhoi.x[tempQuestion].getSize()>110){
+                    int mark = 55;
+                    int mark2 = mark + 55;
+                    int i = 0;
+                    while(i < mark){
+                        
+                     dong1 += cauhoi.x[tempQuestion][i];
+                     if(cauhoi.x[tempQuestion][mark-1] != ' ')
+                         mark++;
+                       i++;
+                    }
+                     
+                    textQuestion.setString(dong1);
+                    textQuestion.setPosition(50,180);
+                    window.draw(textQuestion);
+                    int j = mark;
+                    while(j < mark2){
+                        
+                     dong2 += cauhoi.x[tempQuestion][j];
+                     if(cauhoi.x[tempQuestion][mark2-1] != ' ')
+                         mark2++;
+                      j++;
+                    }
+                    textQuestion.setString(dong2);
+                    textQuestion.setPosition(50,220);
+                    window.draw(textQuestion);
+                    for(int i=mark2;i<cauhoi.x[tempQuestion].getSize()-1;i++){
+                        dong3 += cauhoi.x[tempQuestion][i];
+                    }  
+                    textQuestion.setString(dong3);
+                    textQuestion.setPosition(50,260);
+                    window.draw(textQuestion);
+                }
+                */
+ 
+                  
+                   
+                   
+				
+	
+	
+				
+		
+
+				////// Cau tra loi 
+				tempAnswerA = randomAnswer(1,4,-1,-1,-1,-1);
+				tempAnswerB = randomAnswer(1,4,tempAnswerA,-1,-1,-1);
+				tempAnswerC = randomAnswer(1,4,tempAnswerA,tempAnswerB,-1,-1);
+				tempAnswerD = randomAnswer(1,4,tempAnswerA,tempAnswerB,tempAnswerC,-1);
+		
+				answerA.setString(traloi.y[tempQuestion][tempAnswerA]);	// A
+				answerA.setPosition(109,350);
+				window.draw(answerA);
+
+				answerB.setString(traloi.y[tempQuestion][tempAnswerB]);	// B
+				answerB.setPosition(555,350);
+				window.draw(answerB);
+
+				answerC.setString(traloi.y[tempQuestion][tempAnswerC]);	// C
+				answerC.setPosition(109,440);
+				window.draw(answerC);
+
+				answerD.setString(traloi.y[tempQuestion][tempAnswerD]);	// D
+				answerD.setPosition(555,440);
+				window.draw(answerD);
+				window.display();
+
+				cout<<tempAnswerA<<"\t"<<tempAnswerB<<"\t"<<tempAnswerC<<"\t"<<tempAnswerD<<"\t"<<endl;
+				
+				while(Select==0){
+					Event e;
+					while (window.pollEvent(e))
+					{
+						if (e.type == Event::Closed)
+							window.close();
+					}
+					getClick(&window,3);
+                    if(help1 == 1){
+                         window.draw(Play);                    
+                        textQuestion.setString(dong1);
+                         textQuestion.setPosition(50,180);
+                          window.draw(textQuestion);
+                         textQuestion.setString(dong2);
+                         textQuestion.setPosition(50,220);
+                         window.draw(textQuestion);
+                         /*textQuestion.setString(dong3);
+                         textQuestion.setPosition(50,260);
+                         window.draw(textQuestion);*/
+
+                         if(tempAnswerA == 1 || tempAnswerA == 4){
+                           /* traloi.y[tempQuestion][tempAnswerA] = L"Chọn thử xem :D";*/
+                        answerA.setString(traloi.y[tempQuestion][tempAnswerA]);	
+				        answerA.setPosition(109,350);
+				        window.draw(answerA);
+
+                        }
+                        if(tempAnswerB== 1 || tempAnswerB == 4){
+                        answerB.setString(traloi.y[tempQuestion][tempAnswerB]);	// B
+				        answerB.setPosition(555,350);
+				        window.draw(answerB);
+                        }
+                        if(tempAnswerC == 1 || tempAnswerC == 4){
+                          answerC.setString(traloi.y[tempQuestion][tempAnswerC]);	// C
+				        answerC.setPosition(109,440);
+				        window.draw(answerC);
+                           /* traloi.y[tempQuestion][tempAnswerC] = L"Chọn thử xem :D";*/
+                        }
+                        if(tempAnswerD == 1 || tempAnswerD == 4){
+                          answerD.setString(traloi.y[tempQuestion][tempAnswerD]);	// D
+				        answerD.setPosition(555,440);
+				        window.draw(answerD);
+                           /* traloi.y[tempQuestion][tempAnswerD] = L"Chọn thử xem :D";*/
+                        }
+                        window.display();
+                        help1 = 0;
+
+                   
+                    }
+					if(Select == A){
+						Click.play();
+						if(tempAnswerA == 1){
+							NhacChoi.pause();
+							Corect.play();
+							window.draw(Score);
+							win.setPosition(200,100);
+							win.setString(L"CHÚC MỪNG BẠN");
+							window.draw(win);
+							window.display();
+							tempMax ++;
+							Sleep(1000);
+							NhacChoi.play();
+						}
+						else{
+							NhacChoi.pause();
+						//	Incorect.play();
+                            Laugh.play();
+							window.draw(Score);
+							win.setPosition(200,100);
+							win.setString(L"BẠN NGU VL");
+							window.draw(win);
+							win.setPosition(60,200);
+							win.setString(L"SAI RỒI CHƠI LẠI ĐI");
+							window.draw(win);
+							window.display();
+							Sleep(5000);
+                            Laugh.pause();
+							NhacDao.play();
+							Mmouse = BACK;
+							break;
+						}
+						Select = -1;
+					} 
+			
+					if(Select == B){
+						Click.play();
+						if(tempAnswerB == 1){
+							NhacChoi.pause();
+							Corect.play();
+							window.draw(Score);
+							win.setPosition(200,100);
+							win.setString(L"CHÚC MỪNG BẠN ");
+							window.draw(win);
+							window.display();
+							tempMax ++;
+							Sleep(1000);
+						}
+						else{
+							NhacChoi.pause();
+						//	Incorect.play();
+                            Laugh.play();
+							window.draw(Score);
+							win.setPosition(200,100);
+							win.setString(L"BẠN NGU VL");
+							window.draw(win);
+							win.setPosition(60,200);
+							win.setString(L"SAI RỒI CHƠI LẠI ĐI");
+							window.draw(win);
+							window.display();
+							Sleep(5000);
+                            Laugh.pause();
+							NhacDao.play();
+							Mmouse = BACK;
+							break;
+						}
+						Select = -1;
+					} 
+					if(Select == C){
+						Click.play();
+						if(tempAnswerC == 1){
+							NhacChoi.pause();
+							Corect.play();
+							window.draw(Score);
+							win.setPosition(200,100);
+							win.setString(L"CHÚC MỪNG BẠN ");
+							window.draw(win);
+							window.display();
+							tempMax ++;
+							Sleep(1000);
+						}
+						else{
+							NhacChoi.pause();
+						//	Incorect.play();
+                            Laugh.play();
+							window.draw(Score);
+							win.setPosition(200,100);
+							win.setString(L"BẠN NGU VL");
+							window.draw(win);
+							win.setPosition(60,200);
+							win.setString(L"SAI RỒI CHƠI LẠI ĐI");
+							window.draw(win);
+							window.display();
+							Sleep(5000);
+                            Laugh.pause();
+							NhacDao.play();
+							Mmouse = BACK;
+							break;
+						}
+						Select = -1;
+					} 
+					if(Select == D){
+						Click.play();
+						if(tempAnswerD == 1){
+							NhacChoi.pause();
+							Corect.play();
+							window.draw(Score);
+							win.setPosition(200,100);
+							win.setString(L"CHÚC MỪNG BẠN ");
+							window.draw(win);
+							window.display();
+							
+							tempMax ++;
+							Sleep(1000);
+
+						}
+						else{
+							NhacChoi.pause();
+						//	Incorect.play();
+                            Laugh.play();
+							window.draw(Score);
+							win.setPosition(200,100);
+							win.setString(L"BẠN NGU VL");
+							window.draw(win);
+							win.setPosition(60,200);
+							win.setString(L"SAI RỒI CHƠI LẠI ĐI");
+							window.draw(win);
+							window.display();
+							Sleep(5000);
+							NhacDao.play();
+							Mmouse = BACK;
+                            Laugh.pause();
+							break;
+						}
+						Select = -1;
+					} 
+					if(Mmouse == BACK){
+						Select = -1;
+						break;
+					}
+				}		
+				Select = 0;
+				if(Mmouse == BACK){
+					Mmouse = 0;
+					Select = -1;
+					break;
+				}
+			}
+			
+		}
+		if(Max<tempMax){
+				Max = tempMax;
+				tempMax = 0;
+			}
+		mode = 1;
+	}
+	
+		return 0;
+}
+
+void getClick(RenderWindow *window,int mode)
+{
+	// nhận dữ liệu từ chuột
+	// có 3 chế độ
+	Mouse mouse;
+	int x = mouse.getPosition(*window).x;
+	int y = mouse.getPosition(*window).y;
+	// chế độ 1 dùng cho màn hinh menu , score và imformation
+	if(mode == 1){
+		if(mouse.isButtonPressed(Mouse::Left) && x>=380 && x<=625 && y>=172 && y<=257){
+			 Mmouse = PLAY;
+			 
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=380 && x<=625 && y>=280 && y<=369){
+			  Mmouse = SCORE;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=375 && x<=622 && y>=395 && y<=480){
+			  Mmouse = IMFORMATION;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=938 && x<=WIDTH && y>=470 && y<=500){
+			 Mmouse = BACK;
+		}
+	}
+
+    // chế độ 2 dùng cho chọn nhân vật
+	if(mode == 2){
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=165 && y>=18 && y<=156){
+			Person =  NV1;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=165 && y>=185 && y<=323){
+			Person =  NV2;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=351 && y>=370 && y<=490){
+			Person =  NV3;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=18 && y<=156){
+			Person =  NV4;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=185 && y<=323){
+			Person =  NV5;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=370 && y<=490){
+			Person =  NV6;
+			Mmouse = 0;
+		}
+		
+    }
+
+	// chế độ cho màn hình chơi
+	if(mode == 3){
+		if(mouse.isButtonPressed(Mouse::Left) && x>=98 && x<=410 && y>=336 && y<=390){
+			Select = A;
+			cout<<"A"<<endl;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=556 && x<=865 && y>=340 && y<=383){
+			Select = B;
+			cout<<"B"<<endl;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=104 && x<=442 && y>=415 && y<=473){
+			Select = C;
+			cout<<"C"<<endl;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=554 && x<=860 && y>=420 && y<=467){
+			Select = D;
+			cout<<"D"<<endl;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=910 && x<=986 && y>=454 && y<=486){
+			 Mmouse = BACK;
+		}
+        if(mouse.isButtonPressed(Mouse::Left) && x>=879 && x<=1000 && y>=5 && y<=50){
+			 help1 = 1;
+		}
+	}
+
+	// chế độ click chuột cho khung Score và imformation
+		if(mode == 4){
+			if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=WIDTH && y>=470 && y<=500){
+				 Mmouse = BACK;
+			}
+		}
+
+	// Hiện tọa độ x,y
+    if(mouse.isButtonPressed(Mouse::Left) && x>=0 && x<=WIDTH && y>=0 && y<=HEIGHT){
+        cout<<x<<"\t"<<y<<endl;
+    }
+   
+}
