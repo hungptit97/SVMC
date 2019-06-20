@@ -1,0 +1,1363 @@
+#include<SFML\Graphics.hpp>
+#include<SFML\Audio.hpp>
+#include<iostream>
+#include<string>
+#include<stdlib.h>
+#include"console.h"
+#include<ctime>
+
+
+#define UP 119
+#define DOWN 115
+#define LEFT 97
+#define RIGHT 100
+#define WIDTH 1000
+#define HEIGHT 500
+#define PLAY 10
+#define SCORE 20
+#define IMFORMATION 30
+#define BACK 40
+#define SETTING 50
+#define NV1 1
+#define NV2 2
+#define NV3 3
+#define NV4 4
+#define NV5 5
+#define NV6 6
+#define A 15
+#define B 16
+#define C 17
+#define D 18
+
+using namespace std;
+using namespace sf;
+
+int Mmouse = 0;
+int Person = -1;
+int Max = 1, tempMax =1;
+int Start=0;
+String Name;
+char buffer[10]={};
+String buffer2="";
+int Select =0;
+int help1=0,help2=0;
+int helpTemp=0;
+String tempAvatar = "";
+int amThanh=1;
+int nhac = 1;
+int countPlay =1;
+int next1 = 0;
+
+struct CauHoi{
+	String x[100];
+};
+struct TraLoi{
+	String y[100][100];
+};
+
+
+
+
+void getClick(RenderWindow *window,int mode);
+
+int randomQuestion(int a, int b){
+	srand(time(NULL)); 
+	int x = a + rand()%(b-a+1);
+	return x;
+}
+
+int randomAnswer(int a, int b, int c,int d, int e, int f){
+	srand(time(NULL)); 
+	int y;
+	y = a + rand()%(b-a+1);
+	while(y == c || y == d || y == e || y == f){
+		y = a + rand()%(b-a+1);
+	}
+	return y;
+}
+
+
+int main(){
+    	int count =0;
+		int ClockTemp = 0;
+		
+		int tempQuestion=0, tempAnswerA,tempAnswerB,tempAnswerC,tempAnswerD;
+   
+    RenderWindow window;
+	window.create(VideoMode(WIDTH,HEIGHT),L"TEAM CLEAR MEN",Style::Close); // Tạo ra khung cửa sổ window
+    ///////////////////////////////////////////////////////////////////
+	CauHoi cauhoi;
+	TraLoi traloi;
+	
+	//////////////////////////////////////////////////////////////////
+	// Câu hỏi và câu trả lời ( viết tiếp thêm nhiều câu hỏi vào đây)
+
+	cauhoi.x[1] = L"Minh 12 tuổi và có số tuổi gấp 3 lần Linh.Hỏi lúc Minh có số tuổi gấp 2 lần tuổi Linh thì Minh mấy tuổi? ";
+	traloi.y[1][1] = L"16 tuổi";
+	traloi.y[1][2] = L"14 tuổi";
+	traloi.y[1][3] = L"18 tuổi";
+	traloi.y[1][4] = L"20 tuổi";
+	
+	cauhoi.x[2] = L"Hùng leo lên cây cao 13m. Ban ngày leo được 3m, ban đêm tụt xuốt 1m. Vậy mất bao lâu Hùng leo hết cái cây ";
+	traloi.y[2][1] = L"5 ngày rưỡi ";
+	traloi.y[2][2] = L"5 ngày ";
+	traloi.y[2][3] = L"6 ngày ";
+	traloi.y[2][4] = L"6 ngày rưỡi ";
+	
+	cauhoi.x[3] = L"Điền số thích hợp: (12 4=316) (2 35=48) (78 1=151) (90 6=?) ";
+	traloi.y[3][1] = L"936";
+	traloi.y[3][2] = L"693";
+	traloi.y[3][3] = L"834";
+	traloi.y[3][4] = L"755";
+	
+	cauhoi.x[4] = L"Điền số thích hợp: 11415=45 23228=38 33913=91 84044=? ";
+	traloi.y[4][1] = L"80";
+	traloi.y[4][2] = L"40";
+	traloi.y[4][3] = L"44";
+	traloi.y[4][4] = L"84";
+	
+	cauhoi.x[5] = L"If 3=8 4=32 5=50 6=72 Then 10=? ";
+	traloi.y[5][1] = L"200";
+	traloi.y[5][2] = L"120";
+	traloi.y[5][3] = L"164";
+	traloi.y[5][4] = L"98";
+	
+	cauhoi.x[6] = L"3voi - 1cua = 7. 2voi - 3cua = 1. Hỏi 1voi - 1cua =? ";
+	traloi.y[6][1] = L"3";
+	traloi.y[6][2] = L"4";
+	traloi.y[6][3] = L"5";
+	traloi.y[6][4] = L"2";
+	
+	cauhoi.x[7] = L"Có 4 người cha, 2 người ông và 4 con trai cùng đi xem phim. Số lượng vé mà họ cần mua là bao nhiêu? ";
+	traloi.y[7][1] = L"6";
+	traloi.y[7][2] = L"4";
+	traloi.y[7][3] = L"5";
+	traloi.y[7][4] = L"8";
+	
+	cauhoi.x[8] = L"Có 16 số 4, phải thực hiện bao nhiêu phép cộng sao cho tổng của dãy số được tạo thành bằng 1000";
+	traloi.y[8][1] = L"9";
+	traloi.y[8][2] = L"8";
+	traloi.y[8][3] = L"10";
+	traloi.y[8][4] = L"7";
+	
+	cauhoi.x[9] = L"Nếu con gái 21 tuổi thì bằng 1 nửa số tuổi của mẹ, hỏi khi con gái 42 tuổi thì mẹ bao nhiêu tuổi? ";
+	traloi.y[9][1] = L"63";
+	traloi.y[9][2] = L"42";
+	traloi.y[9][3] = L"84";
+	traloi.y[9][4] = L"Đáp án khác";
+	
+	cauhoi.x[10] = L"Ai là tác giả của bức họa nổi tiếng “Mona Lisa” ? ";
+	traloi.y[10][1] = L"Michael DI Capri";
+	traloi.y[10][2] = L"Michael Angelo";
+	traloi.y[10][3] = L"Lewis Philips";
+	traloi.y[10][4] = L"Khó quá bỏ qua";
+	
+	cauhoi.x[11] = L"Chiến tranh thế giới thứ nhất kết thúc năm nào? ";
+	traloi.y[11][1] = L"1918";
+	traloi.y[11][2] = L"1915";
+	traloi.y[11][3] = L"1916";	
+	traloi.y[11][4] = L"1917";
+	
+	cauhoi.x[12] = L"Hệ thống xương ở người trưởng thành có bao nhiêu cái? ";
+	traloi.y[12][1] = L"206";
+	traloi.y[12][2] = L"314";
+	traloi.y[12][3] = L"250";
+	traloi.y[12][4] = L"155";
+	 
+	cauhoi.x[13] = L"Có bao nhiêu tháng trong 1 thập kỷ? ";
+	traloi.y[13][1] = L"120";
+	traloi.y[13][2] = L"130";
+	traloi.y[13][3] = L"140";
+	traloi.y[13][4] = L"Đíu ai biết :D";
+	
+	cauhoi.x[14] = L"Titan là vệ tinh của hành tinh nào? ";
+	traloi.y[14][1] = L"Sao Thổ";
+	traloi.y[14][2] = L"Sao Hải Vương";
+	traloi.y[14][3] = L"Sao Kim";
+	traloi.y[14][4] = L"Sao Mộc";
+	
+	cauhoi.x[15] = L"Sao nào sáng nhất trong hệ mặt trời? ";
+	traloi.y[15][1] = L"Sao Kim";
+	traloi.y[15][2] = L"Mặt Trời";
+	traloi.y[15][3] = L"Sao Diêm Vương";
+	traloi.y[15][4] = L"Sao Mộc";
+	
+	cauhoi.x[16] = L"Thành phố nào ở trên thế giới nằm ở 2 lục địa? ";
+	traloi.y[16][1] = L"Chịu. Bỏ qua";
+	traloi.y[16][2] = L"Kabul";
+	traloi.y[16][3] = L"Moskva";
+	traloi.y[16][4] = L"Bucharest";
+	
+	cauhoi.x[17] = L"Thuyết nào của Einstein xác định rằng, không có gì có thể đi nhanh hơn ánh sáng? ";
+	traloi.y[17][1] = L"Thuyết Tương đối đặc biệt";
+	traloi.y[17][2] = L"Thuyết tương đối rộng";
+	traloi.y[17][3] = L"Thuyết Big Bang";
+	traloi.y[17][4] = L"Làm gì có thuyết nào như này";
+	
+	cauhoi.x[18] = L"Einstein trở thành công dân quốc tịch Thụy Sĩ năm 1901,     trước đó ông đã từ bỏ quốc tịch nào? ";
+	traloi.y[18][1] = L"Đức";
+	traloi.y[18][2] = L"Hoa Kỳ";
+	traloi.y[18][3] = L"Sao Hỏa";
+	traloi.y[18][4] = L"Mỹ";
+	
+	cauhoi.x[19] = L"Vào thời điểm ông công bố thuyết tương đối đặc biệt,         Einstein làm công việc gì? ";
+	traloi.y[19][1] = L"Làm việc ở phòng sáng chế";
+	traloi.y[19][2] = L"Nhân viên bưu điện";
+	traloi.y[19][3] = L"Làm việc tại thu viện";
+	traloi.y[19][4] = L"Làm công nhân";
+	
+	cauhoi.x[20] = L"Vợ thứ 2 của Einstein tên gì? ";
+	traloi.y[20][1] = L"Elsa";
+	traloi.y[20][2] = L"Colyra";
+	traloi.y[20][3] = L"Khó vãi. Bỏ qua";
+	traloi.y[20][4] = L"Franklin";
+	
+	cauhoi.x[21] = L"Tuổi của bố + con = 66. Tuổi của bố gồm những số giống tuổi của con nhưng đảo ngược. Hỏi con mấy tuổi? ";
+	traloi.y[21][1] = L"Tất cả đều đúng";
+	traloi.y[21][2] = L"15";
+	traloi.y[21][3] = L"24";
+	traloi.y[21][4] = L"Tất cả đều sai";
+	
+	cauhoi.x[22] = L"Cho dãy 16 06 68 88 X 98. X bằng bao nhiêu? ";
+	traloi.y[22][1] = L"87";
+	traloi.y[22][2] = L"15";
+	traloi.y[22][3] = L"24";
+	traloi.y[22][4] = L"69";
+
+	cauhoi.x[23] = L"Rút gọn phân số 56/64 thành phân số tối giản ta sẽ được? ";
+	traloi.y[23][1] = L"14/16";
+	traloi.y[23][2] = L"7/8";
+	traloi.y[23][3] = L"28/32";
+	traloi.y[23][4] = L"30/34";
+	/************************************/ 
+	cauhoi.x[24] = L"Tam giác nào có trực tâm nằm ngoài tam giác ";
+	traloi.y[24][1] = L"tam giác tù";
+	traloi.y[24][2] = L"tam giác vuông";
+	traloi.y[24][3] = L"tam giác thường";
+	traloi.y[24][4] = L"tam giác cân";
+	/************************************/ 
+	cauhoi.x[25] =  L"Đại Ngu là quốc hiệu của triều đại nào? ";
+	traloi.y[25][1] = L"Triều Hồ";
+	traloi.y[25][2] = L"Triều Nguyễn";
+	traloi.y[25][3] = L"Các chúa Nguyễn";
+	traloi.y[25][4] = L"Nhà Tây Sơn";
+	/************************************/ 
+	cauhoi.x[26] = L"Đại hội đại biểu toàn quốc của Đảng đã bầu ai làm bí thư thứ nhất? ";
+	traloi.y[26][1] = L"Lê Duẩn";
+	traloi.y[26][2] = L"Hồ Chí Minh";
+	traloi.y[26][3] = L"Trường Chinh";
+	traloi.y[26][4] = L"Phạm Văn Đồng";
+	/************************************/
+	cauhoi.x[27] = L"Đường lối đổi mới đất nước được đưa ra tại Đại hội đại biểu toàn quốc lần thứ mấy của Đảng? ";
+	traloi.y[27][1] = L"Đại hội VI";
+	traloi.y[27][2] = L"Đại hội IV";
+	traloi.y[27][3] = L"Đại hội V";
+	traloi.y[27][4] = L"Đại hội VII";
+	/************************************/
+	cauhoi.x[28] = L"Cho đến năm 1956, ta đã tiến hành bao nhiêu đợt cải cách    ruộng đất? ";
+	traloi.y[28][1] = L"5";
+	traloi.y[28][2] = L"4";
+	traloi.y[28][3] = L"3";
+	traloi.y[28][4] = L"2";
+	/************************************/
+	cauhoi.x[29] = L"Phong trào Hoà bình được bắt đầu ở đâu? ";
+	traloi.y[29][1] = L"Sài Gòn - Chợ Lớn";
+	traloi.y[29][2] = L"Hóc Môn - Gia Định";
+	traloi.y[29][3] = L"Huế";
+	traloi.y[29][4] = L"Hà Nội";
+	/************************************/
+	cauhoi.x[30] = L"Đế quốc Mĩ tiến hành chiến tranh phá hoại miền Bắc lần thứ  nhất vào khoảng thời gian nào? ";
+	traloi.y[30][1] = L"1965 - 1968";
+	traloi.y[30][2] = L"1960 - 1964";
+	traloi.y[30][3] = L"1969 - 1973";
+	traloi.y[30][4] = L"1965 - 1969";
+	/************************************/
+	cauhoi.x[31] = L"Tổng thống nào của Mĩ gắn với sự sụp đổ của chính quyền bù  nhìn Ngô Đình Diệm ? ";
+	traloi.y[31][1] = L"Ken nơ đi";
+	traloi.y[31][2] = L"Giôn xơn";
+	traloi.y[31][3] = L"Ních xơn";
+	traloi.y[31][4] = L"Các-tơ";
+	/************************************/
+	cauhoi.x[32] = L"Hoà thượng Thích Quảng Đức tự thiêu để phản đối chính quyền Ngô Đình Diệm ở đâu? ";
+	traloi.y[32][1] = L"Sài Gòn";
+	traloi.y[32][2] = L"Huế";
+	traloi.y[32][3] = L"Hà Nội";
+	traloi.y[32][4] = L"Đà Nẵng";
+	/************************************/
+	cauhoi.x[33] = L"Trật tự 2 cực lanta sụp đổ vào thời điểm nào ? ";
+	traloi.y[33][1] = L"Năm 1991";
+	traloi.y[33][2] = L"Năm 1993";
+	traloi.y[33][3] = L"Năm 1990";
+	traloi.y[33][4] = L"Năm 1992";
+	/************************************/
+	cauhoi.x[34] = L"Người máy robot lần đầu tiên ra đời ở nước nào? ";
+	traloi.y[34][1] = L"Mĩ";
+	traloi.y[34][2] = L"Nhật";
+	traloi.y[34][3] = L"Liên Xô";
+	traloi.y[34][4] = L"Việt Nam";
+	/************************************/
+	cauhoi.x[35] =  L"Nước nào mở đầu kỉ nguyên chinh phục vũ trụ? ";
+	traloi.y[35][1] = L"Liên Xô";
+	traloi.y[35][2] = L"Nhật";
+	traloi.y[35][3] = L"Mĩ";
+	traloi.y[35][4] = L"Anh";
+	/************************************/ 
+	cauhoi.x[36] = L"Dạng địa hình chiếm diện tích lớn nhất trên lãnh thổ nước ta là? ";
+	traloi.y[36][1] = L"Đồi núi thấp";
+	traloi.y[36][2] = L"Đồng bằng ";
+	traloi.y[36][3] = L"Núi trung bình ";
+	traloi.y[36][4] = L"Núi cao";
+	/************************************/	   
+	cauhoi.x[37] = L"Điểm cực Bắc phần đất liền nước ta ở vĩ độ 23° 22' B tại xã Lũng Cú thuộc tỉnh? ";
+	traloi.y[37][1] = L"Hà Giang";
+	traloi.y[37][2] = L"Lào Cai";
+	traloi.y[37][3] = L"Cao Bằng";
+	traloi.y[37][4] = L"Lạng Sơn";
+	/************************************/		 
+	cauhoi.x[38] = L"Huyện đảo Trường Sa trực thuộc tỉnh nào? ";
+	traloi.y[38][1] = L"Tỉnh Khánh Hòa ";
+	traloi.y[38][2] = L"Thành phố Đà Nẵng";
+	traloi.y[38][3] = L"Tỉnh Quảng Nam";
+	traloi.y[38][4] = L"Tỉnh Quảng Nam";
+	/************************************/	  
+	cauhoi.x[39] = L"Gió mùa Đông Nam hoạt động ở miền bắc nước ta vào thời gian nào? ";
+	traloi.y[39][1] = L"Giữa và cuối mùa hè";
+	traloi.y[39][2] = L"Cuối mùa đông";
+	traloi.y[39][3] = L"Đầu mùa đông";
+	traloi.y[39][4] = L"Đầu và giữa mùa hạ";
+	/************************************/	  
+	cauhoi.x[40] = L"Trên đất liền nước ta, nơi có thời gian hai lần mặt trời lên thiên đỉnh gần nhất là? ";
+	traloi.y[40][1] = L"Điểm cực Bắc  ";
+	traloi.y[40][2] = L"Điểm cực Đông ";
+	traloi.y[40][3] = L"Điểm cực Tây";
+	traloi.y[40][4] = L"Điểm cực Nam";
+	/************************************/ 
+	cauhoi.x[41] = L"Chiều của mạch khuôn trên ADN dùng để tổng hợp mARN và      chiều tổng hợp mARN lần lượt là: ";
+	traloi.y[41][1] = L"3’ → 5’ và 5’ → 3’";
+	traloi.y[41][2] = L"5’ → 3’ và 3’ → 5’";
+	traloi.y[41][3] = L"3’ → 5’ và 3’ → 5’";
+	traloi.y[41][4] = L"3’ → 5’ và 3’ → 5’";
+	/************************************/	   
+	cauhoi.x[42] = L"Người phải chịu hình phạt tù là phải chịu trách nhiệm ";
+	traloi.y[42][1] = L"hình sự";
+	traloi.y[42][2] = L"hành chính";
+	traloi.y[42][3] = L"hành chính";
+	traloi.y[42][4] = L"dân sự";
+	/************************************/		 
+	cauhoi.x[43] = L"Một chiếc tàu hỏa đự định dến ga lúc 9h50 nhưng lại bị muộn 45p.thử hỏi tàu đến ga lúc nào ";
+	traloi.y[43][1] = L"10h35";
+	traloi.y[43][2] = L"10h25";
+	traloi.y[43][3] = L"9h5";
+	traloi.y[43][4] = L"9h15";
+	/************************************/	   
+	cauhoi.x[44] = L"Một cuộc đua xuất phát lúc 3h23 và kết thúc lúc 4h kém 23   Hỏi cuộc đua kéo dài bao lâu ";
+	traloi.y[44][1] = L"14'";
+	traloi.y[44][2] = L"1h";
+	traloi.y[44][3] = L"23'";
+	traloi.y[44][4] = L"20'";
+	/************************************/	  
+	cauhoi.x[45] = L"Trong khu vực đông dân cư, xe máy được phép đi tốc độ tối đa là ? ";
+	traloi.y[45][1] = L"40 km/h";
+	traloi.y[45][2] = L"50 km/h";
+	traloi.y[45][3] = L"60 km/h";
+	traloi.y[45][4] = L"30 km/h";
+	/************************************/	 
+	cauhoi.x[46] = L"Máu được xếp vào loại mô gì ? ";
+	traloi.y[46][1] = L"Mô liên kết";
+	traloi.y[46][2] = L"Mô thần kinh";
+	traloi.y[46][3] = L"Mô cơ";
+	traloi.y[46][4] = L"Mô biểu bì";
+	/************************************/	  
+	cauhoi.x[47] = L"Trong phản xạ rụt tay khi chạm vào vật nóng thì trung tâm xử lý thông tin nằm ở đâu ? ";
+	traloi.y[47][1] = L"Tủy sống";
+	traloi.y[47][2] = L"Bán cầu đại não";
+	traloi.y[47][3] = L"Tiểu não";
+	traloi.y[47][4] = L"Trụ giữa";
+	/************************************/	   
+	cauhoi.x[48] = L"Vỏ não được cấu tạo chủ yếu bởi các tế bào có hình dạng như thế nào ? ";
+	traloi.y[48][1] = L"Hình tháp";
+	traloi.y[48][2] = L"Hình nón";
+	traloi.y[48][3] = L"Hình trứng";
+	traloi.y[48][4] = L"Hình sao";
+	/************************************/	  
+	cauhoi.x[49] = L"Ở người bình thường, nhiệt độ đo được ở miệng là bao nhiêu  độ C? ";
+	traloi.y[49][1] = L"37";
+	traloi.y[49][2] = L"37,5";
+	traloi.y[49][3] = L"36";
+	traloi.y[49][4] = L"36,5";
+	/************************************/	  
+	cauhoi.x[50] = L"Việt Nam công bố với thế giới về ca nhiễm HIV đầu tiên vào  năm nào ? ";
+	traloi.y[50][1] = L"1990";
+	traloi.y[50][2] = L"1986";
+	traloi.y[50][3] = L"1985";
+	traloi.y[50][4] = L"1991";
+	/************************************/ 
+	cauhoi.x[51] = L"Cái gì phá rồi thì tốt hơn là chưa phá ";
+	traloi.y[51][1] = L"Phá án";
+	traloi.y[51][2] = L"Phá sản";
+	traloi.y[51][3] = L"Phá hủy";
+	traloi.y[51][4] = L"Phá phách";
+	/************************************/
+	cauhoi.x[52] = L"1 vợ nằm giường leo, 2 vợ nằm giường trèo. 3 vợ nằm với ai?";
+	traloi.y[52][1] = L"Nằm với mẹ vợ";
+	traloi.y[52][2] = L"Nằm đất";
+	traloi.y[52][3] = L"Nằm 1 mình";
+	traloi.y[52][4] = L"Nằm với 2 con vợ";
+	//Nằm với mẹ vợ
+	/************************************/
+	cauhoi.x[53] = L"Trong phòng Banggalore, anh Thắng và anh Hùng ai đẹp trai   hơn?";
+	traloi.y[53][1] = L"Thách dám nói :D";
+	traloi.y[53][2] = L"Anh Thắng";
+	traloi.y[53][3] = L"Đẹp trai bằng nhau";
+	traloi.y[53][4] = L"Anh Hùng";
+	//Xấu thế đẹp sao nổi
+	/************************************/
+	cauhoi.x[54] = L"Cu nhúng vào nước lâu ngày thì bị gì?";
+	traloi.y[54][1] = L"Cu bị ăn mòn";
+	traloi.y[54][2] = L"Cu bị sun";
+	traloi.y[54][3] = L" Cu bị ướt";
+	traloi.y[54][4] = L"Cu bị mềm";
+	//Cu bị ăn mòn
+	/************************************/
+	cauhoi.x[55] = L"A gọi B bằng bác, B gọi C là ông nội, C gọi D là cậu, D gọi E là gì, E gọi Z bằng con. Vậy A gọi Z bằng gì?";
+	traloi.y[55][1] = L"Miệng";
+	traloi.y[55][2] = L"Bà ngoại";
+	traloi.y[55][3] = L"Cậu";
+	traloi.y[55][4] = L"Chắt";
+	//Miệng
+	/************************************/
+	cauhoi.x[56] = L"Hướng nào có nhiều đàn ông nhất?";
+	traloi.y[56][1] = L"Hướng nam";
+	traloi.y[56][2] = L"Hướng tây";
+	traloi.y[56][3] = L"Hướng đông";
+	traloi.y[56][4] = L"Hướng bắc";
+	//hướng nam
+	/************************************/
+	cauhoi.x[57] = L"Mặt đỏ bừng bừng đít có đuôi là làm gì?";
+	traloi.y[57][1] = L"Đi nặng";
+	traloi.y[57][2] = L"Đi tè";
+	traloi.y[57][3] = L"Bị dị tật";
+	traloi.y[57][4] = L"Biến thành khỉ";
+	//Đi nặng
+	/************************************/
+	cauhoi.x[58] = L"Muỗi sống nhờ gì?";
+	traloi.y[58][1] = L"Đập hụt";
+	traloi.y[58][2] = L"Muỗi đực";
+	traloi.y[58][3] = L"Không khí";
+	traloi.y[58][4] = L"Máu";
+	/************************************/
+	cauhoi.x[59] = L"Số 96996969669999696699699969 có bao nhiêu số 9";
+	traloi.y[59][1] = L"16";
+	traloi.y[59][2] = L"15";
+	traloi.y[59][3] = L"14";
+	traloi.y[59][4] = L"17";
+
+	cauhoi.x[60] = L"Tổng giám đốc nhà máy Samsung Electroncs Vietnam (SEV) là ai";
+	traloi.y[60][1] = L"Ông ROH HYOUNG HOON";
+	traloi.y[60][2] = L"Ông LEE BYEONG KUK";
+	traloi.y[60][3] = L"Ông KIM IN SOO";
+	traloi.y[60][4] = L"Ông KANG WONSEOK";
+	cauhoi.x[61] = L"1/4 tuổi của tôi trừ đi 4 sẽ đc 4. Vậy tôi bao nhiêu tuổi?";
+	traloi.y[61][1] = L"32";
+	traloi.y[61][2] = L"36";
+	traloi.y[61][3] = L"42";
+	traloi.y[61][4] = L"34";
+	cauhoi.x[62] = L"Số trong dấu ? là số mấy : ?, 144, 169, 196, 255";
+	traloi.y[62][1] = L"121";
+	traloi.y[62][2] = L"112";
+	traloi.y[62][3] = L"111";
+	traloi.y[62][4] = L"122";
+	cauhoi.x[63] = L"A cao hơn B, C thấp hơn A. Câu nào đúng nhất ";
+	traloi.y[63][1] = L"Không đủ dữ liệu";
+	traloi.y[63][2] = L"C cao hơn B";
+	traloi.y[63][3] = L"C cao bằng b";
+	traloi.y[63][4] = L"C thấp hơn B";
+	cauhoi.x[64] = L"Tìm số trong dấu ?: 15, 05, 94, 84, ?, 64";
+	traloi.y[64][1] = L"74";
+	traloi.y[64][2] = L"25";
+	traloi.y[64][3] = L"49";
+	traloi.y[64][4] = L"53";
+	cauhoi.x[65] = L"1 năm có 7 tháng 31 ngày. Có bao nhiêu tháng có 28 ngày?";
+	traloi.y[65][1] = L"12";	
+	traloi.y[65][2] = L"0";
+	traloi.y[65][3] = L"5";
+	traloi.y[65][4] = L"1";
+	cauhoi.x[66] = L"Có bao nhiêu mét khối đất trong một cái hố cao 3m, dài 6m và rộng 4m?";
+	traloi.y[66][1] = L"Không có đất";	
+	traloi.y[66][2] = L"72 mét khối đất";
+	traloi.y[66][3] = L"18 mét khối đất";
+	traloi.y[66][4] = L"24 mét khối đất";	
+	cauhoi.x[67] = L"Hiện nay Thành 10 tuổi, 8 năm nữa Thành sẽ gấp đôi tuổi em ruột Thành bây giờ, hỏi bây giờ em Thành bao nhiêu tuổi?";
+	traloi.y[67][1] = L"9";
+	traloi.y[67][2] = L"8";
+	traloi.y[67][3] = L"12";
+	traloi.y[67][4] = L"6";
+	cauhoi.x[68] = L"Một sản phẩm được hạ giá 40%, hỏi sản phẩm đó phải tăng lên bao nhiêu phần trăm để trở về với giá ban đầu?";
+	traloi.y[68][1] = L"66,667%";
+	traloi.y[68][2] = L"60%";
+	traloi.y[68][3] = L"73,333%";
+	traloi.y[68][4] = L"40%";
+	cauhoi.x[69] = L"Nếu từ WOLF tương ứng với số 8526, thì từ FLOW tương ứng với số nào sau đây?";
+	traloi.y[69][1] = L"6258";
+	traloi.y[69][2] = L"5862";
+	traloi.y[69][3] = L"2856";
+	traloi.y[69][4] = L"6852";
+	cauhoi.x[70] = L"Anh trai của cháu gái gọi bạn bằng cô là gì của bạn?";
+	traloi.y[70][1] = L"Cháu";
+	traloi.y[70][2] = L"Em";
+	traloi.y[70][3] = L"Cô";
+	traloi.y[70][4] = L"Dì";
+	cauhoi.x[71] = L"Nếu 8 năm trước Mario 32 tuổi thì anh ta bao nhiêu tuổi cách đây x năm?";
+	traloi.y[71][1] = L"40 - x";
+	traloi.y[71][2] = L"x - 40";
+	traloi.y[71][3] = L"x - 24";
+	traloi.y[71][4] = L"24 - x";
+	cauhoi.x[72] = L"Chiều dài và chiều rộng của 1 hình chữ nhật tăng 20%,thì diện tích sẽ tăng lên bao nhiêu % ?";
+	traloi.y[72][1] = L"44%";
+	traloi.y[72][2] = L"24%";
+	traloi.y[72][3] = L"36%";
+	traloi.y[72][4] = L"20%";
+	cauhoi.x[73] = L"30 người đàn ông và 2 người phụ nữ đánh nhau ở đâu";
+	traloi.y[73][1] = L"Bàn cờ";
+	traloi.y[73][2] = L"Chợ Đồng Xuân";
+	traloi.y[73][3] = L"Phim có con heo";
+	traloi.y[73][4] = L"Đéo biết";
+	cauhoi.x[74] = L"Vợ Nobita là ai?";
+	traloi.y[74][1] = L"Một cô gái";
+	traloi.y[74][2] = L"Xuka";
+	traloi.y[74][3] = L"Ran";
+	traloi.y[74][4] = L"yumi";
+	cauhoi.x[75] = L"Thất bại là mẹ của thành công, vậy ai là cha của thành công?";
+	traloi.y[75][1] = L"Chồng thất bại";
+	traloi.y[75][2] = L"Ông thất bại";
+	traloi.y[75][3] = L"Thất bại";
+	traloi.y[75][4] = L"Bố của thất bại";
+	cauhoi.x[76] = L"Cây lê có 5 cành, mỗi cành có 10 nhánh, mỗi nhánh có 2 quả. Hỏi co mấy quả táo?";
+	traloi.y[76][1] = L"0";
+	traloi.y[76][2] = L"90";
+	traloi.y[76][3] = L"120";
+	traloi.y[76][4] = L"100";
+	cauhoi.x[77] = L"Cái gì không cánh mà bay?";
+	traloi.y[77][1] = L"Mây";
+	traloi.y[77][2] = L"Máy bay";
+	traloi.y[77][3] = L"Tiền";
+	traloi.y[77][4] = L"Diana";
+	cauhoi.x[78] = L"Chuột gì có một mắt?";
+	traloi.y[78][1] = L"Chuột máy tính";
+	traloi.y[78][2] = L"Chuột bạch";
+	traloi.y[78][3] = L"Chuột đồng";
+	traloi.y[78][4] = L"Chuột cống";
+
+	///////////////////////////////////////////////////////////
+	Texture phadao;
+	Sprite Phadao;
+	phadao.loadFromFile("sauKhiDung10Cau.png");
+	Phadao.setTexture(phadao);
+	Phadao.setTextureRect(IntRect(0,0,1280,720));
+	Phadao.setScale(float(0.78),float(0.7));
+
+	///////////////////////////////////////////////////////////
+	Texture nv1,nv2,nv3,nv4,nv5,nv6;
+	Sprite Nv1,Nv2,Nv3,Nv4,Nv5,Nv6;	
+	nv1.loadFromFile("nv1.png");
+	Nv1.setTexture(nv1);
+	Nv1.setPosition(10,15);
+	Nv1.setTextureRect(IntRect(0,0,1280,720));
+	Nv1.setScale(float(0.7),float(0.6));
+
+	nv2.loadFromFile("nv21.png");
+	Nv2.setTexture(nv2);
+	Nv2.setPosition(10,15);
+	Nv2.setTextureRect(IntRect(0,0,217,212));
+	Nv2.setScale(float(0.78),float(0.6));
+
+	nv3.loadFromFile("nv31.png");
+	Nv3.setTexture(nv3);
+	Nv3.setPosition(10,15);
+	Nv3.setTextureRect(IntRect(0,0,217,212));
+	Nv3.setScale(float(0.7),float(0.6));
+
+	nv4.loadFromFile("nv41.png");
+	Nv4.setTexture(nv4);
+	Nv4.setPosition(10,15);
+	Nv4.setTextureRect(IntRect(0,0,217,212));
+	Nv4.setScale(float(0.7),float(0.6));
+
+	nv5.loadFromFile("nv51.png");
+	Nv5.setTexture(nv5);
+	Nv5.setPosition(10,15);
+	Nv5.setTextureRect(IntRect(0,0,217,212));
+	Nv5.setScale(float(0.7),float(0.6));
+
+	nv6.loadFromFile("nv61.png");
+	Nv6.setTexture(nv6);
+	Nv6.setPosition(10,15);
+	Nv6.setTextureRect(IntRect(0,0,217,212));
+	Nv6.setScale(float(0.7),float(0.6));
+	
+	
+			
+	///////////////////////////////////////////////////////////
+	Texture background;
+    background.loadFromFile("background.png");
+    Sprite Background;
+    Background.setTexture(background);
+    Background.setTextureRect(IntRect(0,0,1280,720));
+    Background.setScale(float(0.78),float(0.7));
+	////////////////////////////////////////////////////////////
+	Texture imageWin;
+    imageWin.loadFromFile("correctButton.png");
+    Sprite ImageWin;
+    ImageWin.setTexture(imageWin);
+    ImageWin.setTextureRect(IntRect(0,0,1280,720));
+    ImageWin.setScale(float(0.78),float(0.7));
+	// Thiết lập khung avatar (ok)
+    Texture face;
+    face.loadFromFile("face.png");
+    Sprite Face;
+    Face.setTexture(face);
+    Face.setTextureRect(IntRect(0,0,1280,720));
+    Face.setScale(float(0.78),float(0.7));
+	////////////////////////////////////////////////////////////
+	// Thiết lập intro
+    Texture intro;
+    intro.loadFromFile("TruocKhiChonNhanVat.png");
+    Sprite Intro;
+    Intro.setTexture(intro);
+    Intro.setTextureRect(IntRect(0,0,1280,720));
+    Intro.setScale(float(0.78),float(0.7));
+    ////////////////////////////////////////////////////////////
+	Texture setting;
+    setting.loadFromFile("BenTrongSetting.png");
+    Sprite Setting;
+    Setting.setTexture(setting);
+    Setting.setTextureRect(IntRect(0,0,1280,720));
+    Setting.setScale(float(0.78),float(0.7));
+    ////////////////////////////////////////////////////////////
+
+	// thiết lập khung menu (ok)
+    Texture menu;
+    menu.loadFromFile("Begin.png");
+    Sprite Menu;
+    Menu.setTexture(menu);
+    Menu.setTextureRect(IntRect(0,0,1280,720));
+    Menu.setScale(float(0.78),float(0.7));
+    ///////////////////////////////////////////////////////////
+	// thiết lập khung khi nhấn vào button Score ( Cần Sửa)
+    Texture score;
+    score.loadFromFile("highScore.png");
+    Sprite Score;
+    Score.setTexture(score);
+    Score.setTextureRect(IntRect(0,0,1280,720));
+    Score.setScale(float(0.78),float(0.7));
+    ////////////////////////////////////////////////////////
+	Texture play;
+    play.loadFromFile("TronKhiChoiGame.png");
+    Sprite Play;
+    Play.setTexture(play);
+    Play.setTextureRect(IntRect(0,0,1280,720));
+    Play.setScale(float(0.78),float(0.7));
+    ////////////////////////////////////////////////////////
+	Texture imformation;
+    imformation.loadFromFile("imformation.png");
+    Sprite Imformation;
+    Imformation.setTexture(imformation);
+    Imformation.setTextureRect(IntRect(0,0,1280,720));
+    Imformation.setScale(float(0.78),float(0.7));
+	///////////////////////////////////////////////////////
+	// thiết lập Score
+    Font font;
+    Text textScore;
+    font.loadFromFile("Font.TTF");
+	textScore.setString(itoa(Max,buffer,5));
+    textScore.setPosition(WIDTH/2-20,HEIGHT/2.5-10);
+    textScore.setFont(font);
+    textScore.setStyle(Text::Bold);
+    textScore.setCharacterSize(100);
+    textScore.setColor(Color::Green);
+    /////////////////////////////////////////////////////////
+	Font fontQuestion;
+	fontQuestion.loadFromFile("Font.TTF");
+    Text textQuestion;
+	Text answerA,answerB,answerC,answerD;
+	Text clock,Delete,Delete2;
+	Text win;
+	// Thiết lập thời gian 30s đếm ngược ( chưa làm đc)
+	clock.setFont(fontQuestion);
+	clock.setCharacterSize(50);
+	clock.setColor(Color::White);
+	clock.setPosition(810,80);
+
+	win.setFont(fontQuestion);
+	win.setCharacterSize(100);
+	win.setColor(Color::Cyan);
+
+	Delete.setString("X");
+	Delete.setPosition(930,3);
+	Delete.setFont(fontQuestion);
+	Delete.setCharacterSize(60);
+	Delete.setColor(Color::Red);
+
+	Delete2.setString("X");
+	Delete2.setPosition(500,200);
+	Delete2.setFont(fontQuestion);
+	Delete2.setCharacterSize(100);
+	Delete2.setColor(Color::Red);
+	
+	
+	// Thiết lập các đáp án ABCD ( Mặc định)
+	answerA.setFont(fontQuestion);
+	answerA.setCharacterSize(20);
+	answerA.setColor(Color::Cyan);
+
+	answerB.setFont(fontQuestion);
+	answerB.setCharacterSize(20);
+	answerB.setColor(Color::Cyan);
+	
+
+	answerC.setFont(fontQuestion);
+	answerC.setCharacterSize(20);
+	answerC.setColor(Color::Cyan);
+
+	answerD.setFont(fontQuestion);
+	answerD.setCharacterSize(20);
+	answerD.setColor(Color::Cyan);
+    
+	// Thiết lập câu hỏi
+    textQuestion.setFont(fontQuestion);
+    textQuestion.setStyle(Text::Bold);
+    textQuestion.setCharacterSize(30);
+	textQuestion.setColor(Color::Cyan);
+
+
+
+    // Câu Lệnh Tạo Nhạc nền
+	Music NhacDao;
+	NhacDao.openFromFile("xoso.wav");
+	NhacDao.setVolume(20);
+    NhacDao.play();
+	NhacDao.setLoop(true);
+
+	Music Winner;
+	Winner.openFromFile("winner.wav");
+	Winner.setVolume(90);
+	Winner.setLoop(true);
+	
+	Music NhacChoi;
+	NhacChoi.openFromFile("nhacNenKhiChoiGame.wav");
+	NhacChoi.setVolume(20);
+	NhacChoi.setLoop(true);
+
+	// Câu Lệnh Tạo Hiệu ứng âm thanh
+	SoundBuffer click,corect,incorect,soundWin,laugh;
+	click.loadFromFile("ClickButton_ChonNutBatKi.wav");
+	corect.loadFromFile("Correct_ChonDungDapAn.wav");
+	incorect.loadFromFile("False_ChonSaiDapAn.wav");
+	soundWin.loadFromFile("winner.wav");
+    laugh.loadFromFile("cuoiKhiThua.wav");
+	Sound Click(click);
+	Sound Corect(corect);
+	Sound Incorect(incorect);
+	Sound SoundWin(soundWin);
+    Sound Laugh(laugh);
+	
+
+	int mode=1; // temp dùng để lựa chọn chế độ click chuột -> lên hàm getClick để xem tiếp
+
+	while(window.isOpen()){
+		Event e;
+		while (window.pollEvent(e))
+		{
+			if (e.type == Event::Closed)
+				window.close();
+		}
+		window.clear(Color::Black);		
+		window.draw(Menu);		// vẽ ra ảnh menu
+        getClick(&window,mode); 
+        if(Mmouse == SCORE){	// nếu chọn button Score thì in ra hình ảnh Score
+			Click.play();
+			textScore.setString(to_string(Max-1));  
+            window.draw(Score);
+            window.draw(textScore); 
+			if(tempAvatar == "nv1.png"){	Nv1.setPosition(20,100);	window.draw(Nv1);	}		
+			if(tempAvatar == "nv2.png"){	Nv2.setPosition(20,100);	window.draw(Nv2);	}			
+			if(tempAvatar == "nv3.png"){	Nv3.setPosition(20,100);	window.draw(Nv3);	}			
+			if(tempAvatar == "nv4.png"){	Nv4.setPosition(20,100);	window.draw(Nv4);	}								
+			if(tempAvatar == "nv5.png"){	Nv5.setPosition(20,100);	window.draw(Nv5);	}
+			if(tempAvatar == "nv6.png"){	Nv6.setPosition(20,100);	window.draw(Nv6);	}
+			window.display();
+			while(Mmouse == SCORE){
+				Event e;
+				while (window.pollEvent(e)){
+					if (e.type == Event::Closed)
+						window.close();
+				}
+				
+				getClick(&window,4);
+			}
+            Start = 0;
+        }
+		if(Mmouse == IMFORMATION){	// nếu chọn button Score thì in ra hình ảnh Score
+			Click.play();
+			window.draw(Imformation);
+			window.display();
+			while(Mmouse == IMFORMATION){
+				Event e;
+				while (window.pollEvent(e)){
+					if (e.type == Event::Closed)
+						window.close();
+				}
+				getClick(&window,4);
+			}
+            Start = 0;
+        }
+		if(Mmouse == SETTING){	// nếu chọn button Score thì in ra hình ảnh Score
+			Click.play();
+			window.draw(Setting);
+			window.display();
+			
+			while(Mmouse == SETTING){
+				window.draw(Setting);
+				Event e;
+				while (window.pollEvent(e)){
+					if (e.type == Event::Closed)
+						window.close();
+				}
+
+				getClick(&window,5);
+				if(nhac == 0){   NhacDao.setVolume(0);	 NhacChoi.setVolume(0);   Delete2.setPosition(246,168); window.draw(Delete2);}
+				if(nhac == 1){   NhacChoi.setVolume(20);	 NhacDao.setVolume(20);   Delete2.setPosition(5000,1000);window.draw(Delete2); }
+
+				if(amThanh == 0){ Click.setVolume(0);	  Corect.setVolume(0);	Incorect.setVolume(0); SoundWin.setVolume(0); Laugh.setVolume(0);     Delete2.setPosition(246,290); window.draw(Delete2); }
+				if(amThanh == 1){ Click.setVolume(50);	  Corect.setVolume(50);	Incorect.setVolume(50); SoundWin.setVolume(50); Laugh.setVolume(50);  Delete2.setPosition(1000,1000); window.draw(Delete2); }
+				window.display();
+			}
+			
+            Start = 0;
+			
+        }
+        if(Mmouse == BACK){
+			Click.play();
+            Mmouse = 0;
+            window.draw(Menu);
+            Start = 0;
+        }
+        if(Mmouse == PLAY){
+			Click.play();
+			window.draw(Intro);
+			window.display();
+			Sleep(500);
+			next1 = 0;
+			while(next1 == 0){
+				Event e;
+				while (window.pollEvent(e)){
+					if (e.type == Event::Closed)
+						window.close();
+				}
+				getClick(&window,6);
+			}
+			Click.play();
+            window.draw(Face); 
+			window.display();
+			Sleep(200);
+			Person = 0;
+			helpTemp = 0;
+			help1 = 0;
+			Select = 0;
+			tempMax = 1;
+			countPlay = 1;
+			next1 = 0;
+			while(Mmouse == PLAY){
+				
+				Event e;
+				while (window.pollEvent(e)){
+					if (e.type == Event::Closed)
+						window.close();
+				}
+				getClick(&window,2);
+				Click.play();
+				// lựa chọn nhân vật 
+				switch (Person){
+					case NV1:	Name = "nv1.png"; Start = 1; break;
+					case NV2:	Name = "nv2.png";  Start = 1; break;
+					case NV3:	Name = "nv3.png";  Start = 1; break;
+					case NV4:	Name = "nv4.png"; Start = 1; break;
+					case NV5:	Name = "nv5.png";   Start = 1; break;
+					case NV6:	Name = "nv6.png"; Start = 1; break;		
+				}
+			}
+			Sleep(200);
+        }	
+		window.display();
+		if(Start == 1){		// lựa chọn xong nhận vật sẽ nhảy vào if và thoát khỏi vòng lặp
+			Start = 0;
+			while(window.isOpen()){
+				NhacDao.pause();
+				NhacChoi.play();
+				Event e;
+				while (window.pollEvent(e))
+				{
+					if (e.type == Event::Closed)
+						window.close();
+				}
+
+				window.draw(Play);	// in ra hình ảnh chơi
+				if(Name == "nv1.png"){	Nv1.setPosition(10,15);	window.draw(Nv1);	}			
+				if(Name == "nv2.png"){	Nv2.setPosition(10,15);	window.draw(Nv2);	}			
+				if(Name == "nv3.png"){	Nv3.setPosition(10,15);	window.draw(Nv3);	}			
+				if(Name == "nv4.png"){	Nv4.setPosition(10,15);	window.draw(Nv4);	}								
+				if(Name == "nv5.png"){	Nv5.setPosition(10,15);	window.draw(Nv5);	}
+				if(Name == "nv6.png"){	Nv6.setPosition(10,15);	window.draw(Nv6);	}
+		
+
+				////// Cau hoi 
+				cout<<tempMax;
+				if(tempMax >= 0 && tempMax < 3)	tempQuestion = randomQuestion(51,78);
+				else if(tempMax>=3 && tempMax<=7) tempQuestion = randomQuestion(20,51);
+				else tempQuestion = randomQuestion(1,20);
+				cout<<tempQuestion<<endl;
+
+				
+                    String dong1="";
+                    String dong2="";
+					int mark=0;
+                    //String dong3 = "";
+                    if(cauhoi.x[tempQuestion].getSize()>60  ){
+						
+						for(int i=0;i<60;i++){
+							dong1 += cauhoi.x[tempQuestion][i];
+						}
+						for(int i=60;i<cauhoi.x[tempQuestion].getSize()-1;i++){
+							dong2 += cauhoi.x[tempQuestion][i];
+						}
+						 
+						 textQuestion.setString(dong1);
+                         textQuestion.setPosition(50,180);
+                         window.draw(textQuestion);
+
+						 textQuestion.setString(dong2);
+                         textQuestion.setPosition(50,220);
+                         window.draw(textQuestion);
+						 mark=1;
+					}
+					else{
+						 textQuestion.setString(cauhoi.x[tempQuestion]);
+                         textQuestion.setPosition(50,180);
+                         window.draw(textQuestion);
+						 mark=0;
+					}
+						
+
+				////// Cau tra loi 
+				tempAnswerA = randomAnswer(1,4,-1,-1,-1,-1);
+				tempAnswerB = randomAnswer(1,4,tempAnswerA,-1,-1,-1);
+				tempAnswerC = randomAnswer(1,4,tempAnswerA,tempAnswerB,-1,-1);
+				tempAnswerD = randomAnswer(1,4,tempAnswerA,tempAnswerB,tempAnswerC,-1);
+		
+				answerA.setString(traloi.y[tempQuestion][tempAnswerA]);	// A
+				answerA.setPosition(109,350);
+				window.draw(answerA);
+
+				answerB.setString(traloi.y[tempQuestion][tempAnswerB]);	// B
+				answerB.setPosition(555,350);
+				window.draw(answerB);
+
+				answerC.setString(traloi.y[tempQuestion][tempAnswerC]);	// C
+				answerC.setPosition(109,440);
+				window.draw(answerC);
+
+				answerD.setString(traloi.y[tempQuestion][tempAnswerD]);	// D
+				answerD.setPosition(555,440);
+				window.draw(answerD);
+				
+				clock.setString(L"Câu " + to_string(tempMax));
+				window.draw(clock);
+				if(helpTemp){
+					
+					window.draw(Delete);
+				}
+				window.display();
+				cout<<tempAnswerA<<"\t"<<tempAnswerB<<"\t"<<tempAnswerC<<"\t"<<tempAnswerD<<"\t"<<endl;
+				
+				while(Select==0){
+					Event e;
+					while (window.pollEvent(e))
+					{
+						if (e.type == Event::Closed)
+							window.close();
+					}
+
+					getClick(&window,3);
+                    if(help1 == 1 && helpTemp ==0){
+						 helpTemp=1;
+						 Click.play();
+						 window.draw(Delete);
+                         window.draw(Play); 
+						 window.draw(clock);
+						 clock.setString(L"Câu " + to_string(tempMax));
+							if(Name == "nv1.png"){	Nv1.setPosition(10,15);	window.draw(Nv1);	}			
+							if(Name == "nv2.png"){	Nv2.setPosition(10,15);	window.draw(Nv2);	}			
+							if(Name == "nv3.png"){	Nv3.setPosition(10,15);	window.draw(Nv3);	}			
+							if(Name == "nv4.png"){	Nv4.setPosition(10,15);	window.draw(Nv4);	}								
+							if(Name == "nv5.png"){	Nv5.setPosition(10,15);	window.draw(Nv5);	}
+							if(Name == "nv6.png"){	Nv6.setPosition(10,15);	window.draw(Nv6);	}
+						 if(!mark){
+							 textQuestion.setString(cauhoi.x[tempQuestion]);
+							 textQuestion.setPosition(50,180);
+							 window.draw(textQuestion);
+							 
+						 }
+						 else{
+							 textQuestion.setString(dong1);
+							 textQuestion.setPosition(50,180);
+							  window.draw(textQuestion);
+							 textQuestion.setString(dong2);
+							 textQuestion.setPosition(50,220);
+							 window.draw(textQuestion);
+							 
+						 }
+						
+                         if(tempAnswerA == 1 || tempAnswerA == 4){
+                     
+							answerA.setString(traloi.y[tempQuestion][tempAnswerA]);	
+							answerA.setPosition(109,350);
+							window.draw(answerA);
+                        }
+						 else{
+							answerA.setString(L"Chọn thử xem :D");	
+							answerA.setPosition(109,350);
+							window.draw(answerA);
+						 }
+                        if(tempAnswerB== 1 || tempAnswerB == 4){
+							answerB.setString(traloi.y[tempQuestion][tempAnswerB]);	// B
+							answerB.setPosition(555,350);
+							window.draw(answerB);
+                        }
+						else{
+							answerB.setString(L"Chọn thử xem :D");	
+							answerB.setPosition(555,350);
+							window.draw(answerB);
+						}
+                        if(tempAnswerC == 1 || tempAnswerC == 4){
+                            answerC.setString(traloi.y[tempQuestion][tempAnswerC]);	// C
+							answerC.setPosition(109,440);
+							window.draw(answerC);                          
+                        }
+						else{
+							answerC.setString(L"Chọn thử xem :D");	
+							answerC.setPosition(109,440);
+							window.draw(answerC);
+						}
+                        if(tempAnswerD == 1 || tempAnswerD == 4){
+							answerD.setString(traloi.y[tempQuestion][tempAnswerD]);	// D
+							answerD.setPosition(555,440);
+							window.draw(answerD);
+                        }
+						else{
+							answerD.setString(L"Chọn thử xem :D");	
+							answerD.setPosition(555,440);
+							window.draw(answerD);
+						}
+						
+						if(helpTemp){
+							
+							window.draw(Delete);
+						}
+                        window.display();
+                        help1 = 0;
+                    }
+					
+					if(Select == A){
+						Click.play();
+						if(tempAnswerA == 1){
+							NhacChoi.pause();
+							Corect.play();
+							window.draw(Background);
+							
+							window.draw(ImageWin);
+							window.display();
+							tempMax ++;
+							Sleep(1000);
+							NhacChoi.play();
+						}
+						else{
+							NhacChoi.pause();
+                            Laugh.play();
+							window.draw(Background);
+							win.setPosition(200,100);
+							win.setString(L"   KÉM LẮM");
+							window.draw(win);
+							win.setPosition(40,200);
+							win.setString(L"SAI RỒI CHƠI LẠI ĐI");
+							window.draw(win);
+							window.display();
+							Sleep(5000);
+                            Laugh.pause();
+							NhacDao.play();
+							Mmouse = BACK;
+							break;
+						}
+						Select = -1;
+					} 
+			
+					if(Select == B){
+						Click.play();
+						if(tempAnswerB == 1){
+							NhacChoi.pause();
+							Corect.play();
+							window.draw(Background);							
+							window.draw(ImageWin);
+							window.display();
+							tempMax ++;
+							Sleep(1000);
+						}
+						else{
+							NhacChoi.pause();					
+                            Laugh.play();
+							window.draw(Background);
+							win.setPosition(200,100);
+							win.setString(L"   KÉM LẮM");
+							window.draw(win);
+							win.setPosition(40,200);
+							win.setString(L"SAI RỒI CHƠI LẠI ĐI");
+							window.draw(win);
+							window.display();
+							Sleep(5000);
+                            Laugh.pause();
+							NhacDao.play();
+							Mmouse = BACK;
+							break;
+						}
+						Select = -1;
+					} 
+					if(Select == C){
+						Click.play();
+						if(tempAnswerC == 1){
+							NhacChoi.pause();
+							Corect.play();
+							window.draw(Background);
+							window.draw(ImageWin);
+							window.display();
+							tempMax ++;
+							Sleep(1000);
+						}
+						else{
+							NhacChoi.pause();						
+                            Laugh.play();
+							window.draw(Background);
+							win.setPosition(200,100);
+							win.setString(L"   KÉM LẮM");
+							window.draw(win);
+							win.setPosition(40,200);
+							win.setString(L"SAI RỒI CHƠI LẠI ĐI");
+							window.draw(win);
+							window.display();
+							Sleep(5000);
+                            Laugh.pause();
+							NhacDao.play();
+							Mmouse = BACK;
+							break;
+						}
+						Select = -1;
+					} 
+					if(Select == D){
+						Click.play();
+						if(tempAnswerD == 1){
+							NhacChoi.pause();
+							Corect.play();
+							window.draw(Background);
+							window.draw(ImageWin);							
+							window.display();							
+							tempMax ++;
+							Sleep(1000);
+
+						}
+						else{
+							NhacChoi.pause();						
+                            Laugh.play();
+							window.draw(Background);
+							win.setPosition(200,100);
+							win.setString(L"   KÉM LẮM");
+							window.draw(win);
+							win.setPosition(40,200);
+							win.setString(L"SAI RỒI CHƠI LẠI ĐI");
+							window.draw(win);
+							window.display();
+							Sleep(5000);
+							NhacDao.play();
+							Mmouse = BACK;
+                            Laugh.pause();
+							break;
+						}
+						Select = -1;
+					}
+					if(Max<tempMax){
+						Max = tempMax;
+						tempAvatar = Name;
+					}
+					if(tempMax > 10){
+						window.draw(Phadao);
+						Winner.play();
+						NhacChoi.pause();
+						window.display();
+						next1 = 0;
+						while(next1 == 0){
+							Event e;
+							while (window.pollEvent(e)){
+								if (e.type == Event::Closed)
+									window.close();
+							}
+							getClick(&window,6);
+						}
+						
+						Mmouse = BACK;
+						NhacDao.play();
+						Select = -1;
+						tempMax = 1;
+						Winner.pause();
+					}
+				
+					if(Mmouse == BACK){
+						Click.play();
+						NhacChoi.pause();
+						NhacDao.play();
+						Select = -1;
+						break;
+					}
+				}		
+				Select = 0;
+				if(Mmouse == BACK){
+					Mmouse = 0;
+					Select = -1;
+					break;
+				}
+			}
+			
+		}
+		
+		mode = 1;
+	}
+	
+		return 0;
+}
+
+void getClick(RenderWindow *window,int mode)
+{
+	// nhận dữ liệu từ chuột
+	// có 3 chế độ
+	Mouse mouse;
+	int x = mouse.getPosition(*window).x;
+	int y = mouse.getPosition(*window).y;
+	// chế độ 1 dùng cho màn hinh menu , score và imformation
+	if(mode == 1){
+		if(mouse.isButtonPressed(Mouse::Left) && x>=380 && x<=625 && y>=172 && y<=257){
+			 Mmouse = PLAY;
+			 
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=380 && x<=625 && y>=280 && y<=369){
+			  Mmouse = SCORE;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=375 && x<=622 && y>=395 && y<=480){
+			  Mmouse = IMFORMATION;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=938 && x<=WIDTH && y>=470 && y<=500){
+			 Mmouse = BACK;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=710 && x<=787 && y>=407 && y<=473){
+			 Mmouse = SETTING;
+		}
+	}
+
+    // chế độ 2 dùng cho chọn nhân vật
+	if(mode == 2){
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=165 && y>=18 && y<=156){
+			Person =  NV1;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=165 && y>=185 && y<=323){
+			Person =  NV2;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=9 && x<=351 && y>=370 && y<=490){
+			Person =  NV3;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=18 && y<=156){
+			Person =  NV4;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=185 && y<=323){
+			Person =  NV5;
+			Mmouse = 0;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=510 && x<=666 && y>=370 && y<=490){
+			Person =  NV6;
+			Mmouse = 0;
+		}
+		
+    }
+
+	// chế độ cho màn hình chơi
+	if(mode == 3){
+		if(mouse.isButtonPressed(Mouse::Left) && x>=98 && x<=410 && y>=336 && y<=390){
+			Select = A;
+			cout<<"A"<<endl;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=556 && x<=865 && y>=340 && y<=383){
+			Select = B;
+			cout<<"B"<<endl;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=104 && x<=442 && y>=415 && y<=473){
+			Select = C;
+			cout<<"C"<<endl;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=554 && x<=860 && y>=420 && y<=467){
+			Select = D;
+			cout<<"D"<<endl;
+		}
+		if(mouse.isButtonPressed(Mouse::Left) && x>=910 && x<=986 && y>=454 && y<=486){
+			 Mmouse = BACK;
+		}
+        if(mouse.isButtonPressed(Mouse::Left) && x>=923 && x<=977 && y>=5 && y<=60){
+			 help1 = 1;
+		}
+	}
+
+	// chế độ click chuột cho khung Score và imformation
+		if(mode == 4){
+			if(mouse.isButtonPressed(Mouse::Left) && x>=929 && x<=WIDTH && y>=470 && y<=500){
+				 Mmouse = BACK;
+			}
+		}
+	// chế độ click cho setting
+		if(mode == 5){
+			if(mouse.isButtonPressed(Mouse::Left) && x>=929 && x<=WIDTH && y>=470 && y<=500){
+				 Mmouse = BACK;
+			}
+			if(mouse.isButtonPressed(Mouse::Left) && x>=231 && x<=331 && y>=185 && y<=271){
+				if(nhac == 0) nhac = 1;
+				else nhac = 0;
+				 Sleep(300);
+				 Mmouse = SETTING;
+				 cout<<nhac<<endl;
+			}
+			if(mouse.isButtonPressed(Mouse::Left) && x>=233 && x<=330 && y>=312 && y<=398){
+				if(amThanh == 0) amThanh =1;
+				else amThanh = 0;
+				Sleep(300);
+				Mmouse = SETTING;
+				cout<<amThanh<<endl;
+			}
+		}
+		if(mode == 6){
+			if(mouse.isButtonPressed(Mouse::Left) && x>=600 && x<=707 && y>=411 && y<=454){
+				 next1 = 1;
+			}
+		}
+	// Hiện tọa độ x,y
+    if(mouse.isButtonPressed(Mouse::Left) && x>=0 && x<=WIDTH && y>=0 && y<=HEIGHT){
+        cout<<x<<"\t"<<y<<endl;
+    }
+   
+}
+
